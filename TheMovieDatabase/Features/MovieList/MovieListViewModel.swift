@@ -16,11 +16,13 @@ final class MovieListViewModel {
 
     var onMoviesUpdated: (() -> Void)?
     var onLoadingChanged: ((Bool) -> Void)?
+    var onLoadingMoreChanged: ((Bool) -> Void)?
     var onError: ((APIError) -> Void)?
 
     // MARK: - State
 
-    private var currentPage = 0
+    private var currentPage: Int = 1
+    private var totalPages: Int = 1
 
     // MARK: - Dependencies
 
@@ -34,11 +36,10 @@ final class MovieListViewModel {
 
     func fetchMovies() {
         guard !isLoading else { return }
+        guard currentPage <= totalPages else { return }
 
         isLoading = true
-        onLoadingChanged?(true)
-
-        currentPage += 1
+        currentPage == 0 ? onLoadingChanged?(true) : onLoadingMoreChanged?(true)
 
         let endpoint = Endpoint(
             path: Constants.moviePopular,
@@ -51,12 +52,15 @@ final class MovieListViewModel {
         ) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self else { return }
-
+                
                 self.isLoading = false
                 self.onLoadingChanged?(false)
+                self.onLoadingMoreChanged?(false)
 
                 switch result {
                 case .success(let response):
+                    self.currentPage += 1
+                    self.totalPages = response.totalPages
                     self.movies.append(contentsOf: response.results)
                     self.onMoviesUpdated?()
                 case .failure(let error):

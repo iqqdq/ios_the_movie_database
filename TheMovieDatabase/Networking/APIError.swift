@@ -20,8 +20,6 @@ enum APIError: LocalizedError {
         switch self {
         case .invalidURL:
             "Invalid URL"
-        case .invalidResponse:
-            "Invalid response from server"
         case .noData:
             "No data received from server"
         case .decodingFailed(let error):
@@ -30,6 +28,8 @@ enum APIError: LocalizedError {
             "Network error: \(error.localizedDescription)"
         case .server(let statusCode):
             "Server returned status code \(statusCode)"
+        case .invalidResponse:
+            "Invalid response from server"
         }
     }
 }

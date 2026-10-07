@@ -5,6 +5,7 @@
 //  Created by Artur on 02.10.2026.
 //
 
+import Kingfisher
 import UIKit
 
 final class MovieTableViewCell: UITableViewCell {
@@ -86,36 +87,41 @@ final class MovieTableViewCell: UITableViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
+        posterImageView.kf.cancelDownloadTask()
+        posterImageView.image = nil
         nameLabel.text = nil
         releaseDateLabel.text = nil
         overviewLabel.text = nil
-        posterImageView.image = nil
         separatorView.isHidden = false
     }
 
-    // MARK: - Public API
-    
+    // MARK: - Public
+
     func configure(with movie: Movie, isLast: Bool) {
-        nameLabel.text = movie.title
-        releaseDateLabel.text =
-            DateHelper.shared.year(from: movie.releaseDate) ?? ""
-        overviewLabel.text = movie.overview
-        setSeparatorHidden(isLast)
-
+        // Poster image
         posterImageView.image = nil
-        guard let url = movie.posterURL else { return }
-
-        ImageLoader.shared.load(url: url) { [weak self] image in
-            DispatchQueue.main.async {
-                self?.posterImageView.image = image
-            }
+        if let url = movie.posterURL {
+            posterImageView.kf.setImage(with: url)
+            //        ImageLoader.shared.load(url: url) { [weak self] image in
+            //            DispatchQueue.main.async {
+            //                self?.posterImageView.image = image
+            //            }
+            //        }
         }
+
+        // Text Content
+        nameLabel.text = movie.title
+        releaseDateLabel.text = DateHelper.shared.year(from: movie.releaseDate) ?? ""
+        overviewLabel.text = movie.overview
+        
+        // Separator
+        setSeparatorHidden(isLast)
     }
 
-    func setSeparatorHidden(_ hidden: Bool) {
+    private func setSeparatorHidden(_ hidden: Bool) {
         separatorView.isHidden = hidden
     }
-
+    
     // MARK: - Setup UI
 
     private func setupUI() {

@@ -6,6 +6,10 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DBAD65C830757EF7009F36B6 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = DBAD65C730757EF7009F36B6 /* Kingfisher */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		DBAD657E306E98FB009F36B6 /* TheMovieDatabase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TheMovieDatabase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -35,6 +39,7 @@
 		DBAD657B306E98FB009F36B6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				DBAD65C830757EF7009F36B6 /* Kingfisher in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -73,6 +78,9 @@
 				DBAD6580306E98FB009F36B6 /* TheMovieDatabase */,
 			);
 			name = TheMovieDatabase;
+			packageProductDependencies = (
+				DBAD65C730757EF7009F36B6 /* Kingfisher */,
+			);
 			productName = TheMovieDatabase;
 			productReference = DBAD657E306E98FB009F36B6 /* TheMovieDatabase.app */;
 			productType = "com.apple.product-type.application";
@@ -101,6 +109,9 @@
 			);
 			mainGroup = DBAD6575306E98FB009F36B6;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DBAD65C630757EF7009F36B6 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DBAD657F306E98FB009F36B6 /* Products */;
 			projectDirPath = "";
@@ -337,6 +348,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DBAD65C630757EF7009F36B6 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.13.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DBAD65C730757EF7009F36B6 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DBAD65C630757EF7009F36B6 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = DBAD6576306E98FB009F36B6 /* Project object */;
 	validationLevel = 1;

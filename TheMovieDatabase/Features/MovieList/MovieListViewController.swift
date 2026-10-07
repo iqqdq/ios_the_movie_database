@@ -20,6 +20,13 @@ class MovieListViewController: UIViewController {
         return indicator
     }()
 
+    private let tableFooterView: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.frame = CGRect(x: 0.0, y: 0.0, width: 44.0, height: 44.0)
+        indicator.hidesWhenStopped = true
+        return indicator
+    }()
+
     private let tableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -32,7 +39,7 @@ class MovieListViewController: UIViewController {
     }()
 
     // MARK: - Init
-    
+
     init(viewModel: MovieListViewModel = MovieListViewModel()) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -41,6 +48,12 @@ class MovieListViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.isNavigationBarHidden = true
+    }
+    
+    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,16 +65,24 @@ class MovieListViewController: UIViewController {
     // MARK: - Bindings
 
     private func bindViewModel() {
-        viewModel.onMoviesUpdated = { [weak self] in
-            self?.tableView.reloadData()
-        }
-
         viewModel.onLoadingChanged = { [weak self] isLoading in
             if isLoading {
                 self?.activityIndicator.startAnimating()
             } else {
                 self?.activityIndicator.stopAnimating()
             }
+        }
+
+        viewModel.onLoadingMoreChanged = { [weak self] isLoading in
+            if isLoading {
+                self?.tableFooterView.startAnimating()
+            } else {
+                self?.tableFooterView.stopAnimating()
+            }
+        }
+
+        viewModel.onMoviesUpdated = { [weak self] in
+            self?.tableView.reloadData()
         }
 
         viewModel.onError = { [weak self] error in
@@ -79,8 +100,6 @@ class MovieListViewController: UIViewController {
     // MARK: - Setup UI
 
     private func setupUI() {
-        navigationController?.isNavigationBarHidden = true
-        view.backgroundColor = .systemBackground
         setupTableView()
         setupActivityIndicator()
     }
@@ -101,6 +120,7 @@ class MovieListViewController: UIViewController {
     private func setupTableView() {
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.tableFooterView = tableFooterView
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -120,9 +140,31 @@ extension MovieListViewController: UITableViewDelegate {
         didSelectRowAt indexPath: IndexPath
     ) {
         tableView.deselectRow(at: indexPath, animated: true)
-        //        let movie = viewModel.movies[indexPath.row]
-        //        let detailVC = MovieDetailViewController(movie: movie)
-        //        navigationController?.pushViewController(detailVC, animated: true)
+
+        if let cell = tableView.cellForRow(at: indexPath) as? MovieTableViewCell
+        {
+            let movie = viewModel.movies[indexPath.row]
+            let movieDetailViewController = MovieDetailViewController(
+                movie: movie,
+                posterImage: cell.posterImageView.image ?? UIImage()
+            )
+            navigationController?.pushViewController(
+                movieDetailViewController,
+                animated: true
+            )
+        }
+
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        willDisplay cell: UITableViewCell,
+        forRowAt indexPath: IndexPath
+    ) {
+        let treshhold = 5
+        if indexPath.row >= viewModel.movies.count - treshhold {
+            viewModel.fetchMovies()
+        }
     }
 }
 

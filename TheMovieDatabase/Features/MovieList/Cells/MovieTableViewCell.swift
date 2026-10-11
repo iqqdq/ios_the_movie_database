@@ -38,7 +38,7 @@ final class MovieTableViewCell: UITableViewCell {
     let posterImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleAspectFill
         imageView.backgroundColor = UIColor(named: "posterColor")
         imageView.layer.cornerRadius = 8.0
         imageView.clipsToBounds = true
@@ -101,19 +101,18 @@ final class MovieTableViewCell: UITableViewCell {
         // Poster image
         posterImageView.image = nil
         if let url = movie.posterURL {
-            posterImageView.kf.setImage(with: url)
-            //        ImageLoader.shared.load(url: url) { [weak self] image in
-            //            DispatchQueue.main.async {
-            //                self?.posterImageView.image = image
-            //            }
-            //        }
+            posterImageView.kf.setImage(
+                with: url,
+                options: [.transition(.fade(0.2))]
+            )
         }
 
-        // Text Content
+        // Text content
         nameLabel.text = movie.title
-        releaseDateLabel.text = DateHelper.shared.year(from: movie.releaseDate) ?? ""
+        releaseDateLabel.text =
+            DateHelper.shared.year(from: movie.releaseDate) ?? ""
         overviewLabel.text = movie.overview
-        
+
         // Separator
         setSeparatorHidden(isLast)
     }
@@ -121,7 +120,7 @@ final class MovieTableViewCell: UITableViewCell {
     private func setSeparatorHidden(_ hidden: Bool) {
         separatorView.isHidden = hidden
     }
-    
+
     // MARK: - Setup UI
 
     private func setupUI() {

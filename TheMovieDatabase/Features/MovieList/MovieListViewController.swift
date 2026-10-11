@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MovieListViewController: UIViewController {
+final class MovieListViewController: UIViewController {
 
     private let viewModel: MovieListViewModel
 
@@ -18,6 +18,17 @@ class MovieListViewController: UIViewController {
         indicator.translatesAutoresizingMaskIntoConstraints = false
         indicator.hidesWhenStopped = true
         return indicator
+    }()
+
+    private lazy var refreshControl: UIRefreshControl = {
+        let control = UIRefreshControl()
+        control.addAction(
+            UIAction { [weak self] _ in
+                self?.viewModel.refreshMovies()
+            },
+            for: .valueChanged
+        )
+        return control
     }()
 
     private let tableFooterView: UIActivityIndicatorView = {
@@ -48,11 +59,12 @@ class MovieListViewController: UIViewController {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
-        navigationController?.isNavigationBarHidden = true
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
     }
-    
+
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
@@ -83,6 +95,10 @@ class MovieListViewController: UIViewController {
 
         viewModel.onMoviesUpdated = { [weak self] in
             self?.tableView.reloadData()
+        }
+
+        viewModel.onRefreshFinished = { [weak self] in
+            self?.refreshControl.endRefreshing()
         }
 
         viewModel.onError = { [weak self] error in
@@ -120,6 +136,7 @@ class MovieListViewController: UIViewController {
     private func setupTableView() {
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.refreshControl = refreshControl
         tableView.tableFooterView = tableFooterView
         view.addSubview(tableView)
 
@@ -135,36 +152,33 @@ class MovieListViewController: UIViewController {
 // MARK: - UITableViewDelegate
 
 extension MovieListViewController: UITableViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let frameHeight = scrollView.frame.height
+        let threshold: CGFloat = 200
+
+        guard contentHeight > 0 else { return }
+
+        if offsetY > contentHeight - frameHeight - threshold {
+            viewModel.fetchMovies()
+        }
+    }
+
     func tableView(
         _ tableView: UITableView,
         didSelectRowAt indexPath: IndexPath
     ) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        if let cell = tableView.cellForRow(at: indexPath) as? MovieTableViewCell
-        {
-            let movie = viewModel.movies[indexPath.row]
-            let movieDetailViewController = MovieDetailViewController(
-                movie: movie,
-                posterImage: cell.posterImageView.image ?? UIImage()
-            )
-            navigationController?.pushViewController(
-                movieDetailViewController,
-                animated: true
-            )
-        }
-
-    }
-
-    func tableView(
-        _ tableView: UITableView,
-        willDisplay cell: UITableViewCell,
-        forRowAt indexPath: IndexPath
-    ) {
-        let treshhold = 5
-        if indexPath.row >= viewModel.movies.count - treshhold {
-            viewModel.fetchMovies()
-        }
+        let movie = viewModel.movies[indexPath.row]
+        let movieDetailViewController = MovieDetailViewController(
+            movie: movie
+        )
+        navigationController?.pushViewController(
+            movieDetailViewController,
+            animated: true
+        )
     }
 }
 

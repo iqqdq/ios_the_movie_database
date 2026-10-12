@@ -31,6 +31,7 @@ final class MovieDetailViewController: UIViewController {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
         imageView.backgroundColor = UIColor(named: "posterColor")
+        imageView.layer.cornerRadius = 8.0
         imageView.clipsToBounds = true
         return imageView
     }()

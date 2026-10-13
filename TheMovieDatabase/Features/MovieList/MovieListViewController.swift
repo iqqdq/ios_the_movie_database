@@ -43,71 +43,8 @@ final class MovieListViewController: UIViewController {
         return tableView
     }()
 
-    // MARK: - Footer
-
-    private let tableFooterView: UIView = {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 60))
-        return view
-    }()
-
-    private let footerSpinner: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView()
-        indicator.translatesAutoresizingMaskIntoConstraints = false
-        indicator.hidesWhenStopped = true
-        return indicator
-    }()
-
-    private lazy var footerRetryButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(
-            NSLocalizedString("retry_button", comment: "Кнопка повтора"),
-            for: .normal
-        )
-        button.isHidden = true
-        button.addAction(
-            UIAction { [weak self] _ in
-                self?.viewModel.retryLoadMore()
-            },
-            for: .touchUpInside
-        )
-        return button
-    }()
-
-    // MARK: - Empty state
-
-    private let emptyStateView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.isHidden = true
-        return view
-    }()
-
-    private let emptyStateLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16)
-        label.textColor = .secondaryLabel
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        return label
-    }()
-
-    private lazy var emptyStateButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(
-            NSLocalizedString("refresh_button", comment: "Кнопка обновления"),
-            for: .normal
-        )
-        button.addAction(
-            UIAction { [weak self] _ in
-                self?.viewModel.refreshMovies()
-            },
-            for: .touchUpInside
-        )
-        return button
-    }()
+    private let tableFooterView = TableFooterView()
+    private let emptyStateView = EmptyStateView()
 
     // MARK: - Init
 
@@ -118,11 +55,6 @@ final class MovieListViewController: UIViewController {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: animated)
     }
 
     // MARK: - Lifecycle
@@ -138,81 +70,126 @@ final class MovieListViewController: UIViewController {
 
     private func bindViewModel() {
         viewModel.onStateChanged = { [weak self] state in
-            self?.render(state)
+            self?.updateState(state)
         }
     }
 
-    // MARK: - Rendering
+    // MARK: - State
 
-    private func render(_ state: MovieListViewModel.State) {
+    private func updateState(_ state: MovieListState) {
         switch state {
         case .idle:
             break
-
         case .loading, .refreshing:
-            activityIndicator.startAnimating()
-            footerSpinner.stopAnimating()
-            footerRetryButton.isHidden = true
-            emptyStateView.isHidden = true
-
+            renderLoading()
         case .loadingMore:
-            footerSpinner.startAnimating()
-            footerRetryButton.isHidden = true
-
+            renderLoadingMore()
         case .loaded:
-            activityIndicator.stopAnimating()
-            footerSpinner.stopAnimating()
-            footerRetryButton.isHidden = true
-            emptyStateView.isHidden = true
-            
-            if refreshControl.isRefreshing {
-                refreshControl.endRefreshing()
-            }
-
-            let oldCount = tableView.numberOfRows(inSection: 0)
-            let newCount = viewModel.movies.count
-            if oldCount == 0 || newCount <= oldCount {
-                tableView.reloadData()
-            } else {
-                let indexPaths = (oldCount..<newCount).map { IndexPath(row: $0, section: 0) }
-                tableView.performBatchUpdates {
-                    tableView.insertRows(at: indexPaths, with: .none)
-                }
-            }
-
+            renderLoaded()
         case .empty:
-            activityIndicator.stopAnimating()
-            footerSpinner.stopAnimating()
-            footerRetryButton.isHidden = true
-            emptyStateView.isHidden = false
-            refreshControl.endRefreshing()
-            tableView.reloadData()
-            emptyStateLabel.text = NSLocalizedString(
-                "nothing_found",
-                comment: "Ничего не найдено"
-            )
-
+            renderEmpty()
         case .error(let message):
-            activityIndicator.stopAnimating()
-            footerSpinner.stopAnimating()
-            footerRetryButton.isHidden = true
-            emptyStateView.isHidden = false
-            refreshControl.endRefreshing()
-            tableView.reloadData()
-            emptyStateLabel.text = String(
-                format: NSLocalizedString(
-                    "failed_to_load_format",
-                    comment: "Ошибка загрузки"
-                ),
-                message
-            )
-
+            renderError(message)
         case .loadMoreError:
-            footerSpinner.stopAnimating()
-            footerRetryButton.isHidden = false
-            emptyStateView.isHidden = true
+            renderLoadMoreError()
+        }
+    }
+
+    private func renderLoading() {
+        activityIndicator.startAnimating()
+        tableFooterView.hide()
+        emptyStateView.hide()
+    }
+
+    private func renderLoadingMore() {
+        tableFooterView.showLoading()
+    }
+
+    private func renderLoaded() {
+        activityIndicator.stopAnimating()
+        tableFooterView.hide()
+        emptyStateView.hide()
+
+        if refreshControl.isRefreshing {
             refreshControl.endRefreshing()
         }
+
+        let oldCount = tableView.numberOfRows(inSection: 0)
+        let newCount = viewModel.movies.count
+
+        if oldCount == 0 || newCount <= oldCount {
+            tableView.reloadData()
+        } else {
+            let indexPaths = (oldCount..<newCount).map {
+                IndexPath(row: $0, section: 0)
+            }
+            tableView.performBatchUpdates {
+                tableView.insertRows(at: indexPaths, with: .none)
+            }
+        }
+    }
+
+    private func renderEmpty() {
+        activityIndicator.stopAnimating()
+        tableFooterView.hide()
+        refreshControl.endRefreshing()
+        tableView.reloadData()
+
+        emptyStateView.show(
+            title: NSLocalizedString(
+                "nothing_found",
+                comment: "Empty state title on the movie list screen"
+            ),
+            buttonTitle: NSLocalizedString(
+                "refresh_button",
+                comment:
+                    "Button to refresh the movie list after an empty result"
+            ),
+            action: { [weak self] in
+                self?.viewModel.refreshMovies()
+            }
+        )
+    }
+
+    private func renderError(_ message: String) {
+        activityIndicator.stopAnimating()
+        tableFooterView.hide()
+        refreshControl.endRefreshing()
+        tableView.reloadData()
+
+        emptyStateView.show(
+            title: String(
+                format: NSLocalizedString(
+                    "failed_to_load_format",
+                    comment: "Error state title on the movie list screen"
+                ),
+                message
+            ),
+            buttonTitle: NSLocalizedString(
+                "refresh_button",
+                comment:
+                    "Button to refresh the movie list after a load error"
+            ),
+            action: { [weak self] in
+                self?.viewModel.refreshMovies()
+            }
+        )
+    }
+
+    private func renderLoadMoreError() {
+        emptyStateView.hide()
+        refreshControl.endRefreshing()
+
+        tableFooterView.showRetry(
+            title: NSLocalizedString(
+                "retry_button",
+                comment:
+                    "Button to retry loading more movies at the bottom of the list"
+            ),
+            action: { [weak self] in
+                self?.viewModel.retryLoadMore()
+            }
+        )
     }
 
     // MARK: - Setup UI
@@ -237,13 +214,12 @@ final class MovieListViewController: UIViewController {
     }
 
     private func setupTableView() {
-        setupFooter()
-
         tableView.delegate = self
         tableView.dataSource = self
         tableView.prefetchDataSource = self
         tableView.refreshControl = refreshControl
         tableView.tableFooterView = tableFooterView
+
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -254,31 +230,8 @@ final class MovieListViewController: UIViewController {
         ])
     }
 
-    private func setupFooter() {
-        tableFooterView.addSubview(footerSpinner)
-        tableFooterView.addSubview(footerRetryButton)
-
-        NSLayoutConstraint.activate([
-            footerSpinner.centerXAnchor.constraint(
-                equalTo: tableFooterView.centerXAnchor
-            ),
-            footerSpinner.centerYAnchor.constraint(
-                equalTo: tableFooterView.centerYAnchor
-            ),
-
-            footerRetryButton.centerXAnchor.constraint(
-                equalTo: tableFooterView.centerXAnchor
-            ),
-            footerRetryButton.centerYAnchor.constraint(
-                equalTo: tableFooterView.centerYAnchor
-            ),
-        ])
-    }
-
     private func setupEmptyState() {
         view.addSubview(emptyStateView)
-        emptyStateView.addSubview(emptyStateLabel)
-        emptyStateView.addSubview(emptyStateButton)
 
         NSLayoutConstraint.activate([
             emptyStateView.centerXAnchor.constraint(
@@ -289,32 +242,11 @@ final class MovieListViewController: UIViewController {
             ),
             emptyStateView.leadingAnchor.constraint(
                 greaterThanOrEqualTo: view.leadingAnchor,
-                constant: 24
+                constant: 24.0
             ),
             emptyStateView.trailingAnchor.constraint(
                 lessThanOrEqualTo: view.trailingAnchor,
-                constant: -24
-            ),
-
-            emptyStateLabel.topAnchor.constraint(
-                equalTo: emptyStateView.topAnchor
-            ),
-            emptyStateLabel.leadingAnchor.constraint(
-                equalTo: emptyStateView.leadingAnchor
-            ),
-            emptyStateLabel.trailingAnchor.constraint(
-                equalTo: emptyStateView.trailingAnchor
-            ),
-
-            emptyStateButton.topAnchor.constraint(
-                equalTo: emptyStateLabel.bottomAnchor,
-                constant: 16
-            ),
-            emptyStateButton.centerXAnchor.constraint(
-                equalTo: emptyStateView.centerXAnchor
-            ),
-            emptyStateButton.bottomAnchor.constraint(
-                equalTo: emptyStateView.bottomAnchor
+                constant: -24.0
             ),
         ])
     }

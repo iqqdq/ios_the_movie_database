@@ -76,19 +76,26 @@ final class MovieDetailViewController: UIViewController {
 
     // MARK: - Lifecycle
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupNavigationBar()
+        setupScrollView()
+        setupSubviews()
+        configure(with: movie)
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 
-    override func viewDidLoad() {
-        setupNavigationBar()
-        setupScrollView()
-        setupUI()
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
     }
 
     // MARK: - Setup UI
-    
+
     private func setupNavigationBar() {
         let transparent = UINavigationBarAppearance()
         transparent.configureWithTransparentBackground()
@@ -114,23 +121,16 @@ final class MovieDetailViewController: UIViewController {
         ])
     }
 
-    private func setupUI() {
+    private func setupSubviews() {
         scrollView.addSubview(posterImageView)
         scrollView.addSubview(nameLabel)
         scrollView.addSubview(releaseDateLabel)
         scrollView.addSubview(overviewLabel)
 
-        if let url = movie.posterURL {
-            posterImageView.kf.setImage(
-                with: url,
-                options: [.transition(.fade(0.2))]
-            )
-        }
+        setupConstraints()
+    }
 
-        nameLabel.text = movie.title
-        releaseDateLabel.text = DateHelper.shared.year(from: movie.releaseDate)
-        overviewLabel.text = movie.overview
-
+    private func setupConstraints() {
         let contentGuide = scrollView.contentLayoutGuide
         let frameGuide = scrollView.frameLayoutGuide
 
@@ -198,5 +198,20 @@ final class MovieDetailViewController: UIViewController {
                 constant: -Layout.verticalSpacing
             ),
         ])
+    }
+
+    // MARK: - Configuration
+
+    private func configure(with movie: Movie) {
+        nameLabel.text = movie.title
+        releaseDateLabel.text = movie.releaseDate.year
+        overviewLabel.text = movie.overview
+
+        if let url = movie.posterURL {
+            posterImageView.kf.setImage(
+                with: url,
+                options: [.transition(.fade(0.2))]
+            )
+        }
     }
 }

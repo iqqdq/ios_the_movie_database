@@ -9,28 +9,15 @@ import Foundation
 
 final class MovieListViewModel {
 
-    // MARK: - State
-
-    enum State {
-        case idle
-        case loading
-        case loadingMore
-        case refreshing
-        case loaded
-        case empty
-        case error(String)
-        case loadMoreError(String)
-    }
-
     // MARK: - Output
 
-    private(set) var state: State = .idle {
+    private(set) var state: MovieListState = .idle {
         didSet { onStateChanged?(state) }
     }
 
     private(set) var movies: [Movie] = []
 
-    var onStateChanged: ((State) -> Void)?
+    var onStateChanged: ((MovieListState) -> Void)?
 
     // MARK: - Private state
 
@@ -81,7 +68,7 @@ final class MovieListViewModel {
                     self.state = .error(error.userMessage)
                 } else {
                     self.shouldStopPagination = true
-                    self.state = .loadMoreError(error.userMessage)
+                    self.state = .loadMoreError
                 }
             }
         }

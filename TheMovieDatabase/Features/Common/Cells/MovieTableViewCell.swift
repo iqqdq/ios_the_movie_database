@@ -109,8 +109,7 @@ final class MovieTableViewCell: UITableViewCell {
 
         // Text content
         nameLabel.text = movie.title
-        releaseDateLabel.text =
-            DateHelper.shared.year(from: movie.releaseDate) ?? ""
+        releaseDateLabel.text =  movie.releaseDate.year
         overviewLabel.text = movie.overview
 
         // Separator

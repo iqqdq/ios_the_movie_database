@@ -53,7 +53,7 @@
       }
     },
     "failed_to_load_format" : {
-      "comment" : "Ошибка загрузки",
+      "comment" : "Error state title on the movie list screen",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -69,8 +69,26 @@
         }
       }
     },
+    "nav_bar_title_settings" : {
+      "comment" : "Nav bar title for the settings screen",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
+          }
+        }
+      }
+    },
     "nothing_found" : {
-      "comment" : "Ничего не найдено",
+      "comment" : "Empty state title on the movie list screen",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -87,7 +105,7 @@
       }
     },
     "refresh_button" : {
-      "comment" : "Кнопка обновления",
+      "comment" : "Button to refresh the movie list after a load error\nButton to refresh the movie list after an empty result",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -104,7 +122,7 @@
       }
     },
     "retry_button" : {
-      "comment" : "Кнопка повтора",
+      "comment" : "Button to retry loading more movies at the bottom of the list",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -116,6 +134,60 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Повторить"
+          }
+        }
+      }
+    },
+    "tab_favorites" : {
+      "comment" : "Tab bar title for the favorites screen",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorites"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Избранное"
+          }
+        }
+      }
+    },
+    "tab_popular" : {
+      "comment" : "Tab bar title for the popular movies screen",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Popular"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Популярное"
+          }
+        }
+      }
+    },
+    "tab_search" : {
+      "comment" : "Tab bar title for the search screen",
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поиск"
           }
         }
       }

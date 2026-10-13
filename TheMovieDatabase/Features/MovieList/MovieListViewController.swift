@@ -11,6 +11,8 @@ final class MovieListViewController: UIViewController {
 
     private let viewModel: MovieListViewModel
 
+    var onMovieSelected: ((Movie) -> Void)?
+
     // MARK: - UI
 
     private let activityIndicator: UIActivityIndicatorView = {
@@ -260,15 +262,8 @@ extension MovieListViewController: UITableViewDelegate {
         didSelectRowAt indexPath: IndexPath
     ) {
         tableView.deselectRow(at: indexPath, animated: true)
-
         let movie = viewModel.movies[indexPath.row]
-        let movieDetailViewController = MovieDetailViewController(
-            movie: movie
-        )
-        navigationController?.pushViewController(
-            movieDetailViewController,
-            animated: true
-        )
+        onMovieSelected?(movie)
     }
 }
 

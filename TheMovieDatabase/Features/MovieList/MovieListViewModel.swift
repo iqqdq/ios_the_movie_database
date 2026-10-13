@@ -36,10 +36,10 @@ final class MovieListViewModel {
 
     // MARK: - Dependencies
 
-    private let apiClient: APIClient
+    private let repository: MovieRepositoryProtocol
 
-    init(apiClient: APIClient = .shared) {
-        self.apiClient = apiClient
+    init(repository: MovieRepositoryProtocol = MovieRepository()) {
+        self.repository = repository
     }
 
     // MARK: - Public
@@ -51,7 +51,7 @@ final class MovieListViewModel {
         let isInitialLoad = nextPage == 1
         state = isInitialLoad ? .loading : .loadingMore
 
-        loadPage(nextPage) { [weak self] result in
+        repository.fetchPopular(page: nextPage) { [weak self] result in
             guard let self else { return }
             self.isLoading = false
 
@@ -82,7 +82,7 @@ final class MovieListViewModel {
         isRefreshing = true
         state = .refreshing
 
-        loadPage(1) { [weak self] result in
+        repository.fetchPopular(page: 1) { [weak self] result in
             guard let self else { return }
             self.isRefreshing = false
 
@@ -109,27 +109,5 @@ final class MovieListViewModel {
     func retryLoadMore() {
         shouldStopPagination = false
         fetchMovies()
-    }
-
-    // MARK: - Private
-
-    private func loadPage(
-        _ page: Int,
-        completion:
-            @escaping (Result<PaginatedResponse<Movie>, APIError>) -> Void
-    ) {
-        let endpoint = Endpoint(
-            path: Constants.moviePopular,
-            queryItems: [URLQueryItem(name: "page", value: "\(page)")]
-        )
-
-        apiClient.get(
-            endpoint: endpoint,
-            response: PaginatedResponse<Movie>.self
-        ) { result in
-            DispatchQueue.main.async {
-                completion(result)
-            }
-        }
     }
 }

@@ -140,7 +140,6 @@
     },
     "tab_favorites" : {
       "comment" : "Tab bar title for the favorites screen",
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -158,7 +157,6 @@
     },
     "tab_popular" : {
       "comment" : "Tab bar title for the popular movies screen",
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -176,7 +174,6 @@
     },
     "tab_search" : {
       "comment" : "Tab bar title for the search screen",
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -188,6 +185,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Поиск"
+          }
+        }
+      }
+    },
+    "tab_settings" : {
+      "comment" : "Tab bar title for the settings screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройки"
           }
         }
       }

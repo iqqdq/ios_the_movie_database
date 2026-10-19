@@ -1,5 +1,5 @@
 //
-//  MovieDetailViewController.swift
+//  DetailViewController.swift
 //  TheMovieDatabase
 //
 //  Created by Artur on 06.10.2026.
@@ -8,7 +8,7 @@
 import Kingfisher
 import UIKit
 
-final class MovieDetailViewController: UIViewController {
+final class DetailViewController: UIViewController {
 
     private let movie: Movie
 
@@ -83,15 +83,13 @@ final class MovieDetailViewController: UIViewController {
         setupSubviews()
         configure(with: movie)
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
+        navigationController?.setNavigationBarHidden(false, animated: true)
     }
-
+    
     override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(true, animated: animated)
+        navigationController?.setNavigationBarHidden(true, animated: true)
     }
 
     // MARK: - Setup UI

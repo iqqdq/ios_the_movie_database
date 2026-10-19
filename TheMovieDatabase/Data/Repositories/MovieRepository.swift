@@ -14,4 +14,11 @@ protocol MovieRepositoryProtocol {
         completion:
             @escaping (Result<PaginatedResponse<Movie>, APIError>) -> Void
     )
+    
+    func searchMovie(
+        page: Int,
+        query: String,
+        completion:
+            @escaping (Result<PaginatedResponse<Movie>, APIError>) -> Void
+    )
 }

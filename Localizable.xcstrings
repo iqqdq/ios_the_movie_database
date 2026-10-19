@@ -53,7 +53,7 @@
       }
     },
     "failed_to_load_format" : {
-      "comment" : "Error state title on the movie list screen",
+      "comment" : "Error state title on the popular screen\nError state title on the search screen",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -88,7 +88,7 @@
       }
     },
     "nothing_found" : {
-      "comment" : "Empty state title on the movie list screen",
+      "comment" : "Empty state title on the popular screen\nEmpty state title on the search screen",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -105,7 +105,7 @@
       }
     },
     "refresh_button" : {
-      "comment" : "Button to refresh the movie list after a load error\nButton to refresh the movie list after an empty result",
+      "comment" : "Button to refresh the popular after a load error\nButton to refresh the popular after an empty result\nButton to refresh the search after a load error",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -134,6 +134,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Повторить"
+          }
+        }
+      }
+    },
+    "search_placeholder" : {
+      "comment" : "Placeholder for search text field",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поиск"
           }
         }
       }
@@ -205,7 +222,41 @@
           }
         }
       }
-    }
+    },
+    "search_placeholder" : {
+      "comment" : "Placeholder for search text field",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start typing a movie title"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Начните вводить название фильма"
+          }
+        }
+      }
+    },
+    "start_typing" : {
+      "comment" : "Hint to start typing a search query",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start typing a movie title"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Введите название фильма"
+          }
+        }
+      }
+    },
   },
   "version" : "1.3"
 }

@@ -75,13 +75,14 @@ final class AppCoordinator: Coordinator {
     // MARK: - Popular Tab
 
     private func setupPopularTab() {
-        let viewModel = MovieListViewModel(repository: repository)
-        let viewController = MovieListViewController(viewModel: viewModel)
+        let viewModel = PopularViewModel(repository: repository)
 
+        let viewController = PopularViewController(viewModel: viewModel)
         viewController.onMovieSelected = { [weak self] movie in
-            self?.showMovieDetail(movie)
+            guard let self else { return }
+            showDetail(popularNavigation, movie)
         }
-        
+
         popularNavigation.setNavigationBarHidden(true, animated: false)
         popularNavigation.setViewControllers([viewController], animated: false)
         popularNavigation.tabBarItem = UITabBarItem(
@@ -94,16 +95,26 @@ final class AppCoordinator: Coordinator {
         )
     }
 
-    private func showMovieDetail(_ movie: Movie) {
-        let viewController = MovieDetailViewController(movie: movie)
-        popularNavigation.pushViewController(viewController, animated: true)
+    private func showDetail(
+        _ navigationController: UINavigationController,
+        _ movie: Movie
+    ) {
+        let viewController = DetailViewController(movie: movie)
+        navigationController.pushViewController(viewController, animated: true)
     }
 
     // MARK: - Search Tab
 
     private func setupSearchTab() {
-        //        let viewController = SearchViewController()
-        let viewController = UIViewController()
+        let viewModel = SearchViewModel(repository: repository)
+
+        let viewController = SearchViewController(viewModel: viewModel)
+        viewController.onMovieSelected = { [weak self] movie in
+            guard let self else { return }
+            showDetail(searchNavigation, movie)
+        }
+
+        searchNavigation.setNavigationBarHidden(true, animated: false)
         searchNavigation.setViewControllers([viewController], animated: false)
         searchNavigation.tabBarItem = UITabBarItem(
             title: NSLocalizedString(
@@ -139,7 +150,7 @@ final class AppCoordinator: Coordinator {
 
     private func setupSettingsTab() {
         let viewController = SettingsViewController()
-        favoritesNavigation.setNavigationBarHidden(true, animated: false)
+        settingsNavigation.setNavigationBarHidden(true, animated: false)
         settingsNavigation.setViewControllers([viewController], animated: false)
         settingsNavigation.tabBarItem = UITabBarItem(
             title: NSLocalizedString(

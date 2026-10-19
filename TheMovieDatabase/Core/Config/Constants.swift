@@ -13,5 +13,6 @@ enum Constants {
     static let imageBaseURL = "https://image.tmdb.org/t/p/w500"
     
     static let moviePopular = "/movie/popular"
+    static let searchMovie = "/search/movie"
 }
 

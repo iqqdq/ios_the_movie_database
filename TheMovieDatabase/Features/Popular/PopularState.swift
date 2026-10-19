@@ -1,11 +1,11 @@
 //
-//  MovieListState.swift
+//  PopularListState.swift
 //  TheMovieDatabase
 //
 //  Created by Artur on 13.10.2026.
 //
 
-enum MovieListState {
+enum PopularListState {
     case idle
     case loading
     case loadingMore

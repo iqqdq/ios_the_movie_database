@@ -38,4 +38,28 @@ final class MovieRepository: MovieRepositoryProtocol {
             }
         }
     }
+
+    func searchMovie(
+        page: Int,
+        query: String,
+        completion:
+            @escaping (Result<PaginatedResponse<Movie>, APIError>) -> Void
+    ) {
+        let endpoint = Endpoint(
+            path: Constants.searchMovie,
+            queryItems: [
+                URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "query", value: "\(query)"),
+            ]
+        )
+
+        apiClient.get(
+            endpoint: endpoint,
+            response: PaginatedResponse<Movie>.self
+        ) { result in
+            DispatchQueue.main.async {
+                completion(result)
+            }
+        }
+    }
 }

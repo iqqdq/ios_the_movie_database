@@ -17,14 +17,14 @@ final class MovieTableViewCell: UITableViewCell {
     // MARK: - UI
 
     enum Layout {
-        static let horizontalPadding: CGFloat = 16
-        static let verticalPadding: CGFloat = 12
-        static let posterWidth: CGFloat = 80
-        static let posterHeight: CGFloat = 120
-        static let spacing: CGFloat = 10
+        static let horizontalPadding: CGFloat = 16.0
+        static let verticalPadding: CGFloat = 12.0
+        static let posterWidth: CGFloat = 80.0
+        static let posterHeight: CGFloat = 120.0
+        static let spacing: CGFloat = 10.0
 
         static var cellHeight: CGFloat {
-            posterHeight + verticalPadding * 2
+            posterHeight + verticalPadding * 2.0
         }
     }
 

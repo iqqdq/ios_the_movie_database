@@ -1,5 +1,5 @@
 //
-//  MovieListViewController.swift
+//  PopularViewController.swift
 //  TheMovieDatabase
 //
 //  Created by Artur on 01.10.2026.
@@ -7,9 +7,9 @@
 
 import UIKit
 
-final class MovieListViewController: UIViewController {
+final class PopularViewController: UIViewController {
 
-    private let viewModel: MovieListViewModel
+    private let viewModel: PopularViewModel
 
     var onMovieSelected: ((Movie) -> Void)?
 
@@ -50,7 +50,7 @@ final class MovieListViewController: UIViewController {
 
     // MARK: - Init
 
-    init(viewModel: MovieListViewModel = MovieListViewModel()) {
+    init(viewModel: PopularViewModel = PopularViewModel()) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -78,7 +78,7 @@ final class MovieListViewController: UIViewController {
 
     // MARK: - State
 
-    private func updateState(_ state: MovieListState) {
+    private func updateState(_ state: PopularListState) {
         switch state {
         case .idle:
             break
@@ -90,8 +90,8 @@ final class MovieListViewController: UIViewController {
             renderLoaded()
         case .empty:
             renderEmpty()
-        case .error(let message):
-            renderError(message)
+        case .error(let error):
+            renderError(error)
         case .loadMoreError:
             renderLoadMoreError()
         }
@@ -140,12 +140,12 @@ final class MovieListViewController: UIViewController {
         emptyStateView.show(
             title: NSLocalizedString(
                 "nothing_found",
-                comment: "Empty state title on the movie list screen"
+                comment: "Empty state title on the popular screen"
             ),
             buttonTitle: NSLocalizedString(
                 "refresh_button",
                 comment:
-                    "Button to refresh the movie list after an empty result"
+                    "Button to refresh the popular after an empty result"
             ),
             action: { [weak self] in
                 self?.viewModel.refreshMovies()
@@ -163,14 +163,14 @@ final class MovieListViewController: UIViewController {
             title: String(
                 format: NSLocalizedString(
                     "failed_to_load_format",
-                    comment: "Error state title on the movie list screen"
+                    comment: "Error state title on the popular screen"
                 ),
                 message
             ),
             buttonTitle: NSLocalizedString(
                 "refresh_button",
                 comment:
-                    "Button to refresh the movie list after a load error"
+                    "Button to refresh the popular after a load error"
             ),
             action: { [weak self] in
                 self?.viewModel.refreshMovies()
@@ -202,19 +202,6 @@ final class MovieListViewController: UIViewController {
         setupEmptyState()
     }
 
-    private func setupActivityIndicator() {
-        view.addSubview(activityIndicator)
-
-        NSLayoutConstraint.activate([
-            activityIndicator.centerXAnchor.constraint(
-                equalTo: view.centerXAnchor
-            ),
-            activityIndicator.centerYAnchor.constraint(
-                equalTo: view.centerYAnchor
-            ),
-        ])
-    }
-
     private func setupTableView() {
         tableView.delegate = self
         tableView.dataSource = self
@@ -229,6 +216,19 @@ final class MovieListViewController: UIViewController {
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+    }
+    
+    private func setupActivityIndicator() {
+        view.addSubview(activityIndicator)
+
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(
+                equalTo: view.centerXAnchor
+            ),
+            activityIndicator.centerYAnchor.constraint(
+                equalTo: view.centerYAnchor
+            ),
         ])
     }
 
@@ -256,7 +256,7 @@ final class MovieListViewController: UIViewController {
 
 // MARK: - UITableViewDelegate
 
-extension MovieListViewController: UITableViewDelegate {
+extension PopularViewController: UITableViewDelegate {
     func tableView(
         _ tableView: UITableView,
         didSelectRowAt indexPath: IndexPath
@@ -269,7 +269,7 @@ extension MovieListViewController: UITableViewDelegate {
 
 // MARK: - UITableViewDataSource
 
-extension MovieListViewController: UITableViewDataSource {
+extension PopularViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int)
         -> Int
     {
@@ -300,8 +300,7 @@ extension MovieListViewController: UITableViewDataSource {
 
 // MARK: - UITableViewDataSourcePrefetching
 
-extension MovieListViewController: UITableViewDataSourcePrefetching {
-
+extension PopularViewController: UITableViewDataSourcePrefetching {
     func tableView(
         _ tableView: UITableView,
         prefetchRowsAt indexPaths: [IndexPath]

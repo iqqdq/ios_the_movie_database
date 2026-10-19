@@ -1,5 +1,5 @@
 //
-//  MovieListViewModel.swift
+//  PopularViewModel.swift
 //  TheMovieDatabase
 //
 //  Created by Artur on 05.10.2026.
@@ -7,17 +7,19 @@
 
 import Foundation
 
-final class MovieListViewModel {
+final class PopularViewModel {
 
     // MARK: - Output
 
-    private(set) var state: MovieListState = .idle {
-        didSet { onStateChanged?(state) }
+    private(set) var state: PopularListState = .idle {
+        didSet {
+            onStateChanged?(state)
+        }
     }
 
     private(set) var movies: [Movie] = []
 
-    var onStateChanged: ((MovieListState) -> Void)?
+    var onStateChanged: ((PopularListState) -> Void)?
 
     // MARK: - Private state
 

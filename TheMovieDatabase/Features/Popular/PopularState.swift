@@ -5,7 +5,7 @@
 //  Created by Artur on 13.10.2026.
 //
 
-enum PopularListState {
+enum PopularListState: Equatable{
     case idle
     case loading
     case loadingMore

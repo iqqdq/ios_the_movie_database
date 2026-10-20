@@ -48,27 +48,54 @@ final class PopularViewModel {
 
     func fetchMovies() {
         guard canLoadMore else { return }
+
+        // Запоминаем, какую страницу мы запрашиваем ПРЯМО СЕЙЧАС
+        let pageToLoad = nextPage
+        let isFirstPage = pageToLoad == 1
+
         isLoading = true
 
-        let isInitialLoad = nextPage == 1
-        state = isInitialLoad ? .loading : .loadingMore
+        // Показываем спиннер только если это первая страница и данных еще нет
+        if isFirstPage {
+            state = .loading
+        } else {
+            state = .loadingMore
+        }
 
-        repository.fetchPopular(page: nextPage) { [weak self] result in
+        repository.fetchPopular(page: pageToLoad) { [weak self] result in
             guard let self else { return }
             self.isLoading = false
 
             switch result {
             case .success(let response):
-                self.nextPage += 1
                 self.totalPages = response.totalPages
-                self.movies.append(contentsOf: response.results)
-                self.state = self.movies.isEmpty ? .empty : .loaded
+
+                if isFirstPage {
+                    // Если это первая страница, мы ЗАМЕНЯЕМ старые данные новыми
+                    self.movies = response.results
+                    self.nextPage = 2
+                } else {
+                    // Если это пагинация, мы ДОБАВЛЯЕМ данные
+                    self.movies.append(contentsOf: response.results)
+                    self.nextPage += 1
+                }
+
+                let newState: PopularListState =
+                    self.movies.isEmpty ? .empty : .loaded
+
+                // ВАЖНО: Так как кэш и сеть присылают ответ дважды,
+                // state может не измениться (был .loaded, стал .loaded).
+                // Чтобы таблица перерисовалась, вызываем принудительно.
+                if newState != self.state {
+                    self.state = newState
+                } else {
+                    self.onStateChanged?(self.state)
+                }
 
             case .failure(let error):
-                print("❌ fetchMovies: \(error.errorDescription ?? "Unknown")")
-                if isInitialLoad {
+                if isFirstPage && self.movies.isEmpty {
                     self.state = .error(error.userMessage)
-                } else {
+                } else if !isFirstPage {
                     self.shouldStopPagination = true
                     self.state = .loadMoreError
                 }

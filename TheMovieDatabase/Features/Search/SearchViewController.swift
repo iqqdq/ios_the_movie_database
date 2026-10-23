@@ -87,12 +87,17 @@ final class SearchViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         bindViewModel()
+        viewModel.fetchFavouritesIDs()
         updateState(viewModel.state)
     }
 
     // MARK: - Bindings
 
     private func bindViewModel() {
+        viewModel.onFavouritesChanged = { [weak self] in
+            self?.tableView.reloadData()
+        }
+        
         viewModel.onStateChanged = { [weak self] state in
             self?.updateState(state)
         }
@@ -343,14 +348,20 @@ extension SearchViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath)
         -> UITableViewCell
     {
+        let movie = viewModel.movies[indexPath.row]
+        let isLast = indexPath.row == viewModel.movies.count - 1
+        let isFavourite = viewModel.isFavourite(movie.id)
+        
         let cell =
             tableView.dequeueReusableCell(
                 withIdentifier: MovieTableViewCell.identifier,
                 for: indexPath
             ) as! MovieTableViewCell
-        let movie = viewModel.movies[indexPath.row]
-        let isLast = indexPath.row == viewModel.movies.count - 1
-        cell.configure(with: movie, isLast: isLast)
+        cell.configure(with: movie, isLast: isLast, isFavourite: isFavourite)
+        cell.onFavouriteTapped = { [weak self] in
+            self?.viewModel.toggleFavourite(movie: movie)
+        }
+        
         return cell
     }
 }

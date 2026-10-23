@@ -11,6 +11,8 @@ final class PopularViewModel {
 
     // MARK: - Output
 
+    private var favouriteObserver: NSObjectProtocol?
+
     private(set) var state: PopularListState = .idle {
         didSet {
             onStateChanged?(state)
@@ -18,8 +20,10 @@ final class PopularViewModel {
     }
 
     private(set) var movies: [Movie] = []
+    private(set) var favouriteIDs: Set<Int> = []
 
     var onStateChanged: ((PopularListState) -> Void)?
+    var onFavouritesChanged: (() -> Void)?
 
     // MARK: - Private state
 
@@ -42,9 +46,25 @@ final class PopularViewModel {
 
     init(repository: MovieRepositoryProtocol = MovieRepository()) {
         self.repository = repository
+
+        // Подписываемся на изменения избранного
+        favouriteObserver = NotificationCenter.default.addObserver(
+            forName: .favouritesDidChange,
+            object: nil,
+            queue: .main,
+            using: { [weak self] _ in
+                self?.fetchFavouritesIDs()
+            }
+        )
+    }
+    
+    deinit {
+        if let observer = favouriteObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 
-    // MARK: - Public
+    // MARK: - Popular
 
     func fetchMovies() {
         guard canLoadMore else { return }
@@ -138,5 +158,35 @@ final class PopularViewModel {
     func retryLoadMore() {
         shouldStopPagination = false
         fetchMovies()
+    }
+
+    // MARK: Favourites
+
+    func fetchFavouritesIDs() {
+        repository.fetchFavouriteIDs { [weak self] ids in
+            guard let self else { return }
+            self.favouriteIDs = ids
+            self.onFavouritesChanged?()
+        }
+    }
+
+    func isFavourite(_ id: Int) -> Bool {
+        return favouriteIDs.contains(id)
+    }
+
+    func toggleFavourite(movie: Movie) {
+        if isFavourite(movie.id) {
+            repository.removeFavourite(movie: movie) { [weak self] in
+                guard let self else { return }
+                self.favouriteIDs.remove(movie.id)
+                self.onFavouritesChanged?()
+            }
+        } else {
+            repository.saveFavourite(movie: movie) { [weak self] in
+                guard let self else { return }
+                self.favouriteIDs.insert(movie.id)
+                self.onFavouritesChanged?()
+            }
+        }
     }
 }

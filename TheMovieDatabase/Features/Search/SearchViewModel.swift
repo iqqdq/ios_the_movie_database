@@ -11,6 +11,8 @@ final class SearchViewModel {
 
     // MARK: - Output
 
+    private var favouriteObserver: NSObjectProtocol?
+    
     private(set) var state: SearchState = .idle {
         didSet {
             onStateChanged?(state)
@@ -18,8 +20,10 @@ final class SearchViewModel {
     }
 
     private(set) var movies: [Movie] = []
+    private(set) var favouriteIDs: Set<Int> = []
 
     var onStateChanged: ((SearchState) -> Void)?
+    var onFavouritesChanged: (() -> Void)?
 
     // MARK: - Private state
 
@@ -43,6 +47,22 @@ final class SearchViewModel {
 
     init(repository: MovieRepositoryProtocol = MovieRepository()) {
         self.repository = repository
+
+        // Подписываемся на изменения избранного
+        favouriteObserver = NotificationCenter.default.addObserver(
+            forName: .favouritesDidChange,
+            object: nil,
+            queue: .main,
+            using: { [weak self] _ in
+                self?.fetchFavouritesIDs()
+            }
+        )
+    }
+
+    deinit {
+        if let observer = favouriteObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 
     // MARK: - Public
@@ -150,5 +170,35 @@ final class SearchViewModel {
         shouldStopPagination = false
         isLoading = false
         currentQuery = ""
+    }
+    
+    // MARK: Favourites
+
+    func fetchFavouritesIDs() {
+        repository.fetchFavouriteIDs { [weak self] ids in
+            guard let self else { return }
+            self.favouriteIDs = ids
+            self.onFavouritesChanged?()
+        }
+    }
+
+    func isFavourite(_ id: Int) -> Bool {
+        return favouriteIDs.contains(id)
+    }
+
+    func toggleFavourite(movie: Movie) {
+        if isFavourite(movie.id) {
+            repository.removeFavourite(movie: movie) { [weak self] in
+                guard let self else { return }
+                self.favouriteIDs.remove(movie.id)
+                self.onFavouritesChanged?()
+            }
+        } else {
+            repository.saveFavourite(movie: movie) { [weak self] in
+                guard let self else { return }
+                self.favouriteIDs.insert(movie.id)
+                self.onFavouritesChanged?()
+            }
+        }
     }
 }

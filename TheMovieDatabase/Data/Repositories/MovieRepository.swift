@@ -14,6 +14,19 @@ protocol MovieRepositoryProtocol {
             @escaping (Result<PaginatedResponse<Movie>, APIError>) -> Void
     )
 
+    func fetchFavouriteIDs(
+        completion:
+            @escaping (Set<Int>) -> Void
+    )
+
+    func fetchFavourites(
+        completion:
+            @escaping (Result<[Movie], APIError>) -> Void
+    )
+
+    func saveFavourite(movie: Movie, completion: @escaping () -> Void)
+    func removeFavourite(movie: Movie, completion: @escaping () -> Void)
+
     func searchMovie(
         page: Int,
         query: String,
@@ -27,65 +40,74 @@ final class MovieRepository: MovieRepositoryProtocol {
     // MARK: - Dependencies
 
     private let apiClient: APIClient
-    private let cacheStorage: MovieCacheStorageProtocol
-    
+    private let movieCacheStorage: MovieCacheStorageProtocol
+    private let favouriteMovieCacheStorage: FavouriteMovieCacheStorageProtocol
+
     // MARK: - Init
-    
+
     init(
         apiClient: APIClient = .shared,
-        cacheStorage: MovieCacheStorageProtocol = MovieCacheStorage()
+        movieCacheStorage: MovieCacheStorageProtocol = MovieCacheStorage(),
+        favouriteMovieCacheStorage: FavouriteMovieCacheStorageProtocol =
+            FavouriteMovieCacheStorage()
     ) {
         self.apiClient = apiClient
-        self.cacheStorage = cacheStorage
+        self.movieCacheStorage = movieCacheStorage
+        self.favouriteMovieCacheStorage = favouriteMovieCacheStorage
     }
 
     // MARK: - MovieRepositoryProtocol
 
-    
-    func fetchPopular(page: Int, completion: @escaping (Result<PaginatedResponse<Movie>, APIError>) -> Void) {
-        
+    func fetchPopular(
+        page: Int,
+        completion:
+            @escaping (Result<PaginatedResponse<Movie>, APIError>) -> Void
+    ) {
+
         // 1. СНАЧАЛА БЕРЕМ ИЗ КЭША (Cache-first)
-        cacheStorage.fetchPopular(page: page) { [weak self] cachedMovies in
+        movieCacheStorage.fetchPopular(page: page) { [weak self] movies in
             guard let self else { return }
-            
+
             // Если в кэше что-то есть — сразу отдаем в UI
-            if !cachedMovies.isEmpty {
-                let cachedResponse = PaginatedResponse(
+            if !movies.isEmpty {
+                let response = PaginatedResponse(
                     page: page,
-                    results: cachedMovies,
-                    totalPages: 1, // Кэш не знает общего числа страниц
-                    totalResults: cachedMovies.count
+                    results: movies,
+                    totalPages: 1,  // Кэш не знает общего числа страниц
+                    totalResults: movies.count
                 )
-                // Отдаем на главном потоке
+
                 DispatchQueue.main.async {
-                    completion(.success(cachedResponse))
+                    completion(.success(response))
                 }
             }
-            
+
             // 2. ПАРАЛЛЕЛЬНО ИДЕМ В СЕТЬ
             let endpoint = Endpoint(
                 path: Constants.moviePopular,
                 queryItems: [URLQueryItem(name: "page", value: "\(page)")]
             )
-            
+
             self.apiClient.get(
                 endpoint: endpoint,
                 response: PaginatedResponse<Movie>.self
-            ) { [weak self] networkResult in
-                switch networkResult {
+            ) { [weak self] result in
+                switch result {
                 case .success(let response):
                     // Сохраняем свежие данные в кэш
-                    self?.cacheStorage.savePopular(response.results, page: page) {
-                        // И отдаем в UI
+                    self?.movieCacheStorage.savePopular(
+                        response.results,
+                        page: page
+                    ) {
                         DispatchQueue.main.async {
                             completion(.success(response))
                         }
                     }
-                    
+
                 case .failure(let error):
                     // Если сеть упала, но кэш был пуст — отдаем ошибку.
                     // Если кэш был — мы уже отдали его выше, ошибку игнорируем.
-                    if cachedMovies.isEmpty {
+                    if movies.isEmpty {
                         DispatchQueue.main.async {
                             completion(.failure(error))
                         }
@@ -94,7 +116,56 @@ final class MovieRepository: MovieRepositoryProtocol {
             }
         }
     }
-    
+
+    // MARK: - FavouriteMovieCacheStorage
+
+    func fetchFavouriteIDs(completion: @escaping (Set<Int>) -> Void) {
+        favouriteMovieCacheStorage.fetchFavouriteIDs { ids in
+            DispatchQueue.main.async {
+                completion(ids)
+            }
+        }
+    }
+
+    func fetchFavourites(
+        completion:
+            @escaping (Result<[Movie], APIError>) -> Void
+    ) {
+        favouriteMovieCacheStorage.fetchFavourites { movies in
+            DispatchQueue.main.async {
+                completion(.success(movies))
+            }
+        }
+    }
+
+    func saveFavourite(movie: Movie, completion: @escaping () -> Void) {
+        favouriteMovieCacheStorage.saveFavourite(movie) {
+            DispatchQueue.main.async {
+                // Уведомляем все приложение, что избранное изменилось
+                NotificationCenter.default.post(
+                    name: .favouritesDidChange,
+                    object: nil
+                )
+                completion()
+            }
+        }
+    }
+
+    func removeFavourite(movie: Movie, completion: @escaping () -> Void) {
+        favouriteMovieCacheStorage.removeFavourite(movie) {
+            DispatchQueue.main.async {
+                // Уведомляем все приложение, что избранное изменилось
+                NotificationCenter.default.post(
+                    name: .favouritesDidChange,
+                    object: nil
+                )
+                completion()
+            }
+        }
+    }
+
+    // TODO:
+
     func searchMovie(
         page: Int,
         query: String,

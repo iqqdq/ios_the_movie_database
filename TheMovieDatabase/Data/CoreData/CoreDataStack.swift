@@ -12,7 +12,6 @@ final class CoreDataStack {
     
     private let container: NSPersistentContainer
     
-    /// Контекст для UI — main thread.
     var viewContext: NSManagedObjectContext {
         container.viewContext
     }

@@ -22,6 +22,10 @@ final class AppCoordinator: Coordinator {
     // MARK: - Coordinator
 
     var childCoordinators: [Coordinator] = []
+    
+    // MARK: - Observers
+    
+    private var themeObserver: NSObjectProtocol?
 
     // MARK: - Dependencies
 
@@ -50,6 +54,17 @@ final class AppCoordinator: Coordinator {
     // MARK: - Start
 
     func start() {
+        applyTheme()
+           
+           // Подписываемся на изменения UserDefaults (когда свитч меняет тему)
+           themeObserver = NotificationCenter.default.addObserver(
+               forName: UserDefaults.didChangeNotification,
+               object: nil,
+               queue: .main
+           ) { [weak self] _ in
+               self?.applyTheme()
+           }
+        
         setupTabBarController()
         setupPopularTab()
         setupSearchTab()
@@ -65,6 +80,22 @@ final class AppCoordinator: Coordinator {
 
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()
+    }
+    
+    // MARK: - App Theme
+    
+    private func applyTheme() {
+        let savedTheme = UserDefaults.standard.string(forKey: "app_theme") ?? "system"
+        let theme = AppTheme(rawValue: savedTheme) ?? .system
+        
+        switch theme {
+        case .light:
+            window.overrideUserInterfaceStyle = .light
+        case .dark:
+            window.overrideUserInterfaceStyle = .dark
+        case .system:
+            window.overrideUserInterfaceStyle = .unspecified
+        }
     }
 
     // MARK: - Tab Bar

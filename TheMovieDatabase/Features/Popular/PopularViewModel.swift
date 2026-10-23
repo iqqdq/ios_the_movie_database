@@ -64,8 +64,18 @@ final class PopularViewModel {
             NotificationCenter.default.removeObserver(observer)
         }
     }
-
-    // MARK: - Popular
+    
+    // MARK: - Private
+    
+    private func fetchFavouritesIDs() {
+         repository.fetchFavouriteIDs { [weak self] ids in
+             guard let self else { return }
+             self.favouriteIDs = ids
+             self.onFavouritesChanged?()
+         }
+     }
+    
+    // MARK: - Public
 
     func fetchMovies() {
         guard canLoadMore else { return }
@@ -153,7 +163,7 @@ final class PopularViewModel {
                 self.state = self.movies.isEmpty ? .empty : .loaded
 
             case .failure(let error):
-                print("❌ refreshMovies: \(error.errorDescription ?? "Unknown")")
+                print("refreshMovies: \(error.errorDescription ?? "Unknown")")
                 // Если данные уже есть — не показываем ошибку, остаёмся в .loaded
                 if self.movies.isEmpty {
                     self.state = .error(error.userMessage)
@@ -169,15 +179,6 @@ final class PopularViewModel {
         fetchMovies()
     }
 
-    // MARK: Favourites
-
-   private func fetchFavouritesIDs() {
-        repository.fetchFavouriteIDs { [weak self] ids in
-            guard let self else { return }
-            self.favouriteIDs = ids
-            self.onFavouritesChanged?()
-        }
-    }
 
     func isFavourite(_ id: Int) -> Bool {
         return favouriteIDs.contains(id)

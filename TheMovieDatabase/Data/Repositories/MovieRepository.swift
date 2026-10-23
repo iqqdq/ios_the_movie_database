@@ -13,6 +13,13 @@ protocol MovieRepositoryProtocol {
         completion:
             @escaping (Result<PaginatedResponse<Movie>, APIError>) -> Void
     )
+    
+    func searchMovie(
+        page: Int,
+        query: String,
+        completion:
+            @escaping (Result<PaginatedResponse<Movie>, APIError>) -> Void
+    )
 
     func fetchFavouriteIDs(
         completion:
@@ -26,13 +33,6 @@ protocol MovieRepositoryProtocol {
 
     func saveFavourite(movie: Movie, completion: @escaping () -> Void)
     func removeFavourite(movie: Movie, completion: @escaping () -> Void)
-
-    func searchMovie(
-        page: Int,
-        query: String,
-        completion:
-            @escaping (Result<PaginatedResponse<Movie>, APIError>) -> Void
-    )
 }
 
 final class MovieRepository: MovieRepositoryProtocol {

@@ -52,6 +52,210 @@
         }
       }
     },
+    "appearance_section" : {
+      "comment" : "Appearance section",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appearance"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Внешний вид"
+          }
+        }
+      }
+    },
+    "cache_cleared" : {
+      "comment" : "Cache cleared success message",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cache successfully cleared"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Кэш успешно очищен"
+          }
+        }
+      }
+    },
+    "cancel" : {
+      "comment" : "Cancel button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмена"
+          }
+        }
+      }
+    },
+    "clear" : {
+      "comment" : "Clear button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистить"
+          }
+        }
+      }
+    },
+    "clear_cache" : {
+      "comment" : "Clear cache button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear Cache"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистить кэш"
+          }
+        }
+      }
+    },
+    "clear_cache_message" : {
+      "comment" : "Clear cache alert message",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to clear the cache? Favorites will not be affected."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы уверены, что хотите очистить кэш? Избранное не будет затронуто."
+          }
+        }
+      }
+    },
+    "clear_cache_title" : {
+      "comment" : "Clear cache alert title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear Cache"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистка кэша"
+          }
+        }
+      }
+    },
+    "clear_favourites" : {
+      "comment" : "Clear favourites button",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear Favourites"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистить избранное"
+          }
+        }
+      }
+    },
+    "clear_favourites_message" : {
+      "comment" : "Clear favourites alert message",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to remove all movies from favourites?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы уверены, что хотите удалить все фильмы из избранного?"
+          }
+        }
+      }
+    },
+    "clear_favourites_title" : {
+      "comment" : "Clear favourites alert title",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear Favourites"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистка избранного"
+          }
+        }
+      }
+    },
+    "dark_theme" : {
+      "comment" : "Dark theme toggle",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dark Mode"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Тёмная тема"
+          }
+        }
+      }
+    },
+    "data_section" : {
+      "comment" : "Data section",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Данные"
+          }
+        }
+      }
+    },
     "failed_to_load_format" : {
       "comment" : "Error state title on the popular screen\nError state title on the search screen",
       "localizations" : {
@@ -65,6 +269,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Не удалось загрузить\n%@"
+          }
+        }
+      }
+    },
+    "favourites_cleared" : {
+      "comment" : "Favourites cleared success message",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favourites successfully cleared"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Избранное успешно очищено"
           }
         }
       }
@@ -87,6 +308,23 @@
         }
       }
     },
+    "no_favourites_found" : {
+      "comment" : "Empty state title on the favourites screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You don't have any favourite movies yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У вас пока нет избранных фильмов"
+          }
+        }
+      }
+    },
     "nothing_found" : {
       "comment" : "Empty state title on the popular screen\nEmpty state title on the search screen",
       "localizations" : {
@@ -104,19 +342,19 @@
         }
       }
     },
-    "no_favourites_found" : {
-      "comment" : "Empty state title on the favourites screen",
+    "ok" : {
+      "comment" : "OK button",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You don't have any favourite movies yet"
+            "value" : "OK"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "У вас пока нет избранных фильмов"
+            "value" : "ОК"
           }
         }
       }

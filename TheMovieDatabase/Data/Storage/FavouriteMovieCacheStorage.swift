@@ -13,6 +13,7 @@ protocol FavouriteMovieCacheStorageProtocol {
     func fetchFavourites(completion: @escaping ([Movie]) -> Void)
     func saveFavourite(_ movie: Movie, completion: @escaping () -> Void)
     func removeFavourite(_ movie: Movie, completion: @escaping () -> Void)
+    func clear(completion: @escaping () -> Void)
 }
 
 final class FavouriteMovieCacheStorage: FavouriteMovieCacheStorageProtocol {
@@ -36,7 +37,7 @@ final class FavouriteMovieCacheStorage: FavouriteMovieCacheStorageProtocol {
                 let ids = Set(entities.map { Int($0.id) })
                 completion(ids)
             } catch {
-                print("Core Data fetch favourite ID's failed: \(error)")
+                print("Core Data favourite fetch ID's failed: \(error)")
                 completion([])
             }
         }
@@ -56,7 +57,7 @@ final class FavouriteMovieCacheStorage: FavouriteMovieCacheStorageProtocol {
                 let favourites = entities.compactMap { ($0.toDomain()) }
                 completion(favourites)
             } catch {
-                print("Core Data fetch favourites failed: \(error)")
+                print("Core Data favourite fetch failed: \(error)")
                 completion([])
             }
         }
@@ -86,7 +87,7 @@ final class FavouriteMovieCacheStorage: FavouriteMovieCacheStorageProtocol {
                 completion()
 
             } catch {
-                print("Core Data save favourite failed: \(error)")
+                print("Core Data favourite save failed: \(error)")
                 completion()
             }
         }
@@ -115,7 +116,35 @@ final class FavouriteMovieCacheStorage: FavouriteMovieCacheStorageProtocol {
                 completion()
 
             } catch {
-                print("Core Data remove favourite failed: \(error)")
+                print("Core Data favourite remove failed: \(error)")
+                completion()
+            }
+        }
+    }
+
+    // MARK: - Clear
+
+    func clear(completion: @escaping () -> Void) {
+        let context = stack.newBackgroundContext()
+        context.perform {
+            let request = FavouriteMovieEntity.fetchRequest()
+            // Удаляем все записи
+            let deleteRequest = NSBatchDeleteRequest(
+                fetchRequest: request as! NSFetchRequest<NSFetchRequestResult>
+            )
+
+            do {
+                try context.execute(deleteRequest)
+                // ВАЖНО: после Batch Delete нужно обновить главный контекст,
+                // чтобы он "узнал" об удалениях
+                NSManagedObjectContext.mergeChanges(
+                    fromRemoteContextSave: [NSDeletedObjectsKey: []],
+                    into: [self.stack.viewContext]
+                )
+
+                completion()
+            } catch {
+                print("Core Data favourite clear failed: \(error)")
                 completion()
             }
         }

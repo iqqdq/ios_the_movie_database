@@ -45,7 +45,7 @@ final class MovieCacheStorage: MovieCacheStorageProtocol {
                 let movies = entities.compactMap { $0.toDomain() }
                 completion(movies)
             } catch {
-                print("Core Data fetch failed: \(error)")
+                print("Core Data popular fetch failed: \(error)")
                 completion([])
             }
         }
@@ -87,7 +87,7 @@ final class MovieCacheStorage: MovieCacheStorageProtocol {
 
                 completion()
             } catch {
-                print("Core Data save failed: \(error)")
+                print("Core Data popular save failed: \(error)")
                 completion()
             }
         }
@@ -115,7 +115,7 @@ final class MovieCacheStorage: MovieCacheStorageProtocol {
 
                 completion()
             } catch {
-                print("Core Data clear failed: \(error)")
+                print("Core Data popular clear failed: \(error)")
                 completion()
             }
         }

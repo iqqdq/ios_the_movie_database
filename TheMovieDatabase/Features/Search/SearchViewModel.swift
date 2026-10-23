@@ -8,10 +8,16 @@
 import Foundation
 
 final class SearchViewModel {
+    
+    // MARK: - Dependencies
+
+    private let repository: MovieRepositoryProtocol
+    
+    // MARK: - Observers
+    
+    private var favouriteObserver: NSObjectProtocol?
 
     // MARK: - Output
-
-    private var favouriteObserver: NSObjectProtocol?
 
     private(set) var movies: [Movie] = []
     private(set) var favouriteIDs: Set<Int> = []
@@ -39,10 +45,8 @@ final class SearchViewModel {
             && !shouldStopPagination
             && nextPage <= totalPages
     }
-
-    // MARK: - Dependencies
-
-    private let repository: MovieRepositoryProtocol
+    
+    // MARK: - Init
 
     init(repository: MovieRepositoryProtocol = MovieRepository()) {
         self.repository = repository
@@ -116,7 +120,7 @@ final class SearchViewModel {
             case .failure(let error):
                 guard query == self.currentQuery else { return }
 
-                print("❌ loadMore: \(error.errorDescription ?? "Unknown")")
+                print("loadMore: \(error.errorDescription ?? "Unknown")")
                 self.shouldStopPagination = true
                 self.state = .loadMoreError
             }
@@ -159,7 +163,7 @@ final class SearchViewModel {
             case .failure(let error):
                 guard query == self.currentQuery else { return }
 
-                print("❌ search: \(error.errorDescription ?? "Unknown")")
+                print("search: \(error.errorDescription ?? "Unknown")")
                 self.state = .error(error.userMessage)
             }
         }

@@ -12,15 +12,14 @@ final class SearchViewModel {
     // MARK: - Output
 
     private var favouriteObserver: NSObjectProtocol?
-    
+
+    private(set) var movies: [Movie] = []
+    private(set) var favouriteIDs: Set<Int> = []
     private(set) var state: SearchState = .idle {
         didSet {
             onStateChanged?(state)
         }
     }
-
-    private(set) var movies: [Movie] = []
-    private(set) var favouriteIDs: Set<Int> = []
 
     var onStateChanged: ((SearchState) -> Void)?
     var onFavouritesChanged: (() -> Void)?
@@ -139,6 +138,9 @@ final class SearchViewModel {
 
         isLoading = true
         state = .searching
+        
+        // Обновляем ID's избранных
+        fetchFavouritesIDs()
 
         repository.searchMovie(page: 1, query: query) {
             [weak self] result in
@@ -171,10 +173,10 @@ final class SearchViewModel {
         isLoading = false
         currentQuery = ""
     }
-    
+
     // MARK: Favourites
 
-    func fetchFavouritesIDs() {
+    private func fetchFavouritesIDs() {
         repository.fetchFavouriteIDs { [weak self] ids in
             guard let self else { return }
             self.favouriteIDs = ids

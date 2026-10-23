@@ -104,6 +104,23 @@
         }
       }
     },
+    "no_favourites_found" : {
+      "comment" : "Empty state title on the favourites screen",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You don't have any favourite movies yet"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У вас пока нет избранных фильмов"
+          }
+        }
+      }
+    },
     "refresh_button" : {
       "comment" : "Button to refresh the popular after a load error\nButton to refresh the popular after an empty result\nButton to refresh the search after a load error",
       "localizations" : {

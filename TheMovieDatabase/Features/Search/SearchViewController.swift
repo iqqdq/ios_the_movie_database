@@ -87,7 +87,6 @@ final class SearchViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         bindViewModel()
-        viewModel.fetchFavouritesIDs()
         updateState(viewModel.state)
     }
 

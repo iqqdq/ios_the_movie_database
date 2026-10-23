@@ -65,7 +65,6 @@ final class PopularViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         bindViewModel()
-        viewModel.fetchFavouritesIDs()
         viewModel.fetchMovies()
     }
 
@@ -83,7 +82,7 @@ final class PopularViewController: UIViewController {
 
     // MARK: - State
 
-    private func updateState(_ state: PopularListState) {
+    private func updateState(_ state: PopularState) {
         switch state {
         case .idle:
             break

@@ -11,6 +11,7 @@ import UIKit
 final class DetailViewController: UIViewController {
 
     private let movie: Movie
+    private let viewModel: DetailViewModel
 
     // MARK: - UI
 
@@ -34,6 +35,16 @@ final class DetailViewController: UIViewController {
         imageView.layer.cornerRadius = 8.0
         imageView.clipsToBounds = true
         return imageView
+    }()
+
+    private lazy var favouriteBarButton: UIBarButtonItem = {
+        let button = UIBarButtonItem(
+            image: UIImage(systemName: "heart"),
+            style: .plain,
+            target: self,
+            action: #selector(favouriteButtonTapped)
+        )
+        return button
     }()
 
     private let nameLabel: UILabel = {
@@ -67,6 +78,7 @@ final class DetailViewController: UIViewController {
 
     init(movie: Movie) {
         self.movie = movie
+        self.viewModel = DetailViewModel(movie: movie)
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -82,14 +94,29 @@ final class DetailViewController: UIViewController {
         setupScrollView()
         setupSubviews()
         configure(with: movie)
+        bindViewModel()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: true)
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
         navigationController?.setNavigationBarHidden(true, animated: true)
+    }
+
+    // MARK: - Bindings
+
+    private func bindViewModel() {
+        viewModel.onFavouriteStatusChanged = { [weak self] isFavourite in
+            self?.updateFavouriteIcon(isFavourite: isFavourite)
+        }
+    }
+
+    @objc private func favouriteButtonTapped() {
+        viewModel.toggleFavourite()
     }
 
     // MARK: - Setup UI
@@ -104,7 +131,8 @@ final class DetailViewController: UIViewController {
         navigationItem.scrollEdgeAppearance = transparent
         navigationItem.standardAppearance = blur
         navigationItem.compactAppearance = blur
-
+        navigationItem.rightBarButtonItem = favouriteBarButton
+        
         navigationController?.navigationBar.tintColor = .white
     }
 
@@ -211,5 +239,12 @@ final class DetailViewController: UIViewController {
                 options: [.transition(.fade(0.2))]
             )
         }
+    }
+
+    private func updateFavouriteIcon(isFavourite: Bool) {
+        let iconName = isFavourite ? "heart.fill" : "heart"
+        let color = isFavourite ? UIColor.systemRed : UIColor.white
+        favouriteBarButton.image = UIImage(systemName: iconName)
+        favouriteBarButton.tintColor = color
     }
 }

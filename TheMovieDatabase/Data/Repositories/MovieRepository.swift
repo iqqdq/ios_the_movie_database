@@ -56,7 +56,7 @@ final class MovieRepository: MovieRepositoryProtocol {
         self.favouriteMovieCacheStorage = favouriteMovieCacheStorage
     }
 
-    // MARK: - MovieRepositoryProtocol
+    // MARK: - Popular
 
     func fetchPopular(
         page: Int,
@@ -64,7 +64,7 @@ final class MovieRepository: MovieRepositoryProtocol {
             @escaping (Result<PaginatedResponse<Movie>, APIError>) -> Void
     ) {
 
-        // 1. СНАЧАЛА БЕРЕМ ИЗ КЭША (Cache-first)
+        // 1. Сначала берем из кэша
         movieCacheStorage.fetchPopular(page: page) { [weak self] movies in
             guard let self else { return }
 
@@ -82,7 +82,7 @@ final class MovieRepository: MovieRepositoryProtocol {
                 }
             }
 
-            // 2. ПАРАЛЛЕЛЬНО ИДЕМ В СЕТЬ
+            // 2. Параллельно запрашиваем API
             let endpoint = Endpoint(
                 path: Constants.moviePopular,
                 queryItems: [URLQueryItem(name: "page", value: "\(page)")]
@@ -116,8 +116,34 @@ final class MovieRepository: MovieRepositoryProtocol {
             }
         }
     }
+    
+    // MARK: - Search
 
-    // MARK: - FavouriteMovieCacheStorage
+    func searchMovie(
+        page: Int,
+        query: String,
+        completion:
+            @escaping (Result<PaginatedResponse<Movie>, APIError>) -> Void
+    ) {
+        let endpoint = Endpoint(
+            path: Constants.searchMovie,
+            queryItems: [
+                URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "query", value: "\(query)"),
+            ]
+        )
+
+        apiClient.get(
+            endpoint: endpoint,
+            response: PaginatedResponse<Movie>.self
+        ) { result in
+            DispatchQueue.main.async {
+                completion(result)
+            }
+        }
+    }
+
+    // MARK: - Favourite
 
     func fetchFavouriteIDs(completion: @escaping (Set<Int>) -> Void) {
         favouriteMovieCacheStorage.fetchFavouriteIDs { ids in
@@ -160,32 +186,6 @@ final class MovieRepository: MovieRepositoryProtocol {
                     object: nil
                 )
                 completion()
-            }
-        }
-    }
-
-    // TODO:
-
-    func searchMovie(
-        page: Int,
-        query: String,
-        completion:
-            @escaping (Result<PaginatedResponse<Movie>, APIError>) -> Void
-    ) {
-        let endpoint = Endpoint(
-            path: Constants.searchMovie,
-            queryItems: [
-                URLQueryItem(name: "page", value: "\(page)"),
-                URLQueryItem(name: "query", value: "\(query)"),
-            ]
-        )
-
-        apiClient.get(
-            endpoint: endpoint,
-            response: PaginatedResponse<Movie>.self
-        ) { result in
-            DispatchQueue.main.async {
-                completion(result)
             }
         }
     }

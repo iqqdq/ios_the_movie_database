@@ -140,7 +140,7 @@ final class MovieTableViewCell: UITableViewCell {
         // Separator
         setSeparatorHidden(isLast)
 
-        // Like Button
+        // Favourite Button
         updateFavouriteIcon(isFavourite: isFavourite)
     }
 

@@ -11,7 +11,7 @@ import UIKit
 
 protocol Coordinator: AnyObject {
     var childCoordinators: [Coordinator] { get set }
-    
+
     func start()
 }
 
@@ -130,8 +130,12 @@ final class AppCoordinator: Coordinator {
     // MARK: - Favorites Tab
 
     private func setupFavoritesTab() {
-        //        let viewController = FavoritesViewController()
-        let viewController = UIViewController()
+        let viewController = FavouritesViewController()
+        viewController.onMovieSelected = { [weak self] movie in
+            guard let self else { return }
+            showDetail(favoritesNavigation, movie)
+        }
+        
         favoritesNavigation.setNavigationBarHidden(true, animated: false)
         favoritesNavigation.setViewControllers(
             [viewController],

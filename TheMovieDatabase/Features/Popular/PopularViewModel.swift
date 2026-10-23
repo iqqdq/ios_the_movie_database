@@ -9,20 +9,25 @@ import Foundation
 
 final class PopularViewModel {
 
-    // MARK: - Output
+    // MARK: - Dependencies
+
+    private let repository: MovieRepositoryProtocol
+
+    // MARK: - Observers
 
     private var favouriteObserver: NSObjectProtocol?
 
-    private(set) var state: PopularListState = .idle {
+    // MARK: - Output
+
+    private(set) var movies: [Movie] = []
+    private(set) var favouriteIDs: Set<Int> = []
+    private(set) var state: PopularState = .idle {
         didSet {
             onStateChanged?(state)
         }
     }
 
-    private(set) var movies: [Movie] = []
-    private(set) var favouriteIDs: Set<Int> = []
-
-    var onStateChanged: ((PopularListState) -> Void)?
+    var onStateChanged: ((PopularState) -> Void)?
     var onFavouritesChanged: (() -> Void)?
 
     // MARK: - Private state
@@ -40,10 +45,6 @@ final class PopularViewModel {
             && nextPage <= totalPages
     }
 
-    // MARK: - Dependencies
-
-    private let repository: MovieRepositoryProtocol
-
     init(repository: MovieRepositoryProtocol = MovieRepository()) {
         self.repository = repository
 
@@ -57,7 +58,7 @@ final class PopularViewModel {
             }
         )
     }
-    
+
     deinit {
         if let observer = favouriteObserver {
             NotificationCenter.default.removeObserver(observer)
@@ -82,6 +83,11 @@ final class PopularViewModel {
             state = .loadingMore
         }
 
+        // Обновляем ID's избранных
+        if isFirstPage {
+            fetchFavouritesIDs()
+        }
+
         repository.fetchPopular(page: pageToLoad) { [weak self] result in
             guard let self else { return }
             self.isLoading = false
@@ -100,7 +106,7 @@ final class PopularViewModel {
                     self.nextPage += 1
                 }
 
-                let newState: PopularListState =
+                let newState: PopularState =
                     self.movies.isEmpty ? .empty : .loaded
 
                 // ВАЖНО: Так как кэш и сеть присылают ответ дважды,
@@ -130,6 +136,9 @@ final class PopularViewModel {
         }
         isRefreshing = true
         state = .refreshing
+        
+        // Обновляем ID's избранных
+        fetchFavouritesIDs()
 
         repository.fetchPopular(page: 1) { [weak self] result in
             guard let self else { return }
@@ -162,7 +171,7 @@ final class PopularViewModel {
 
     // MARK: Favourites
 
-    func fetchFavouritesIDs() {
+   private func fetchFavouritesIDs() {
         repository.fetchFavouriteIDs { [weak self] ids in
             guard let self else { return }
             self.favouriteIDs = ids

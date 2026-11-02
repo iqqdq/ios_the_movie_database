@@ -86,8 +86,12 @@ final class PopularViewController: UIViewController {
         switch state {
         case .idle:
             break
-        case .loading, .refreshing:
+        case .loading:
             renderLoading()
+        case .refreshing:
+            // Данные уже на экране: достаточно спиннера UIRefreshControl,
+            // центральный лоадер поверх контента не показываем.
+            break
         case .loadingMore:
             renderLoadingMore()
         case .loaded:

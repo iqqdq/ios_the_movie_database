@@ -44,7 +44,7 @@ final class EmptyStateView: UIView {
 
     // MARK: - Public
 
-    /// Cостояние с заголовком и кнопкой действия.
+    // Cостояние с заголовком и кнопкой действия.
     func show(
         title: String,
         buttonTitle: String,
@@ -57,7 +57,7 @@ final class EmptyStateView: UIView {
         isHidden = false
     }
 
-    /// Cостояние только с заголовком.
+    // Cостояние только с заголовком.
     func show(title: String) {
         titleLabel.text = title
         actionButton.setTitle(nil, for: .normal)

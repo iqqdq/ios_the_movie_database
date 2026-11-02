@@ -67,12 +67,14 @@ final class DetailViewModel {
 
     private func checkFavouriteStatus() {
         repository.fetchFavouriteIDs { [weak self] ids in
-            guard let self else { return }
-            
-            let newStatus = ids.contains(self.movie.id)
-            
-            if self.isFavourite != newStatus {
-                self.isFavourite = newStatus
+            DispatchQueue.main.async {
+                guard let self else { return }
+                
+                let newStatus = ids.contains(self.movie.id)
+                
+                if self.isFavourite != newStatus {
+                    self.isFavourite = newStatus
+                }
             }
         }
     }

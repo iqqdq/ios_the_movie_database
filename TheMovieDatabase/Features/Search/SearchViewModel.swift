@@ -8,13 +8,13 @@
 import Foundation
 
 final class SearchViewModel {
-    
+
     // MARK: - Dependencies
 
     private let repository: MovieRepositoryProtocol
-    
+
     // MARK: - Observers
-    
+
     private var favouriteObserver: NSObjectProtocol?
 
     // MARK: - Output
@@ -45,7 +45,7 @@ final class SearchViewModel {
             && !shouldStopPagination
             && nextPage <= totalPages
     }
-    
+
     // MARK: - Init
 
     init(repository: MovieRepositoryProtocol = MovieRepository()) {
@@ -70,8 +70,8 @@ final class SearchViewModel {
 
     // MARK: - Public
 
-    /// Вызывается на каждое изменение текста в поисковой строке.
-    /// Дебаунсит ввод: реальный запрос уйдёт только после паузы.
+    // Вызывается на каждое изменение текста в поисковой строке
+    // Дебаунсит ввод: реальный запрос уйдёт только после паузы
     func searchMovie(query: String) {
         searchWorkItem?.cancel()
 
@@ -93,8 +93,8 @@ final class SearchViewModel {
         )
     }
 
-    /// Вызывается при скролле к низу списка.
-    /// Подгружает следующую страницу для текущего запроса.
+    // Вызывается при скролле к низу списка
+    // Подгружает следующую страницу для текущего запроса
     func loadMore() {
         guard canLoadMore else { return }
 
@@ -105,29 +105,29 @@ final class SearchViewModel {
 
         repository.searchMovie(page: nextPage, query: query) {
             [weak self] result in
-            guard let self else { return }
-            self.isLoading = false
-
-            switch result {
-            case .success(let response):
+            DispatchQueue.main.async {
+                guard let self else { return }
                 guard query == self.currentQuery else { return }
 
-                self.nextPage += 1
-                self.totalPages = response.totalPages
-                self.movies.append(contentsOf: response.results)
-                self.state = .results
+                self.isLoading = false
 
-            case .failure(let error):
-                guard query == self.currentQuery else { return }
+                switch result {
+                case .success(let response):
+                    self.nextPage += 1
+                    self.totalPages = response.totalPages
+                    self.movies.append(contentsOf: response.results)
+                    self.state = .results
 
-                print("loadMore: \(error.errorDescription ?? "Unknown")")
-                self.shouldStopPagination = true
-                self.state = .loadMoreError
+                case .failure(let error):
+                    print("loadMore: \(error.errorDescription ?? "Unknown")")
+                    self.shouldStopPagination = true
+                    self.state = .loadMoreError
+                }
             }
         }
     }
 
-    /// Повторная попытка загрузить страницу после ошибки пагинации.
+    // Повторная попытка загрузить страницу после ошибки пагинации
     func retryLoadMore() {
         shouldStopPagination = false
         loadMore()
@@ -135,36 +135,36 @@ final class SearchViewModel {
 
     // MARK: - Private
 
-    /// Реальный поиск. Вызывается только через `search(query:)` после debounce.
+    // Реальный поиск. Вызывается только через `search(query:)` после debounce
     private func performSearch(query: String) {
         resetSearch()
         currentQuery = query
 
         isLoading = true
         state = .searching
-        
+
         // Обновляем ID's избранных
         fetchFavouritesIDs()
 
         repository.searchMovie(page: 1, query: query) {
             [weak self] result in
-            guard let self else { return }
-            self.isLoading = false
-
-            switch result {
-            case .success(let response):
+            DispatchQueue.main.async {
+                guard let self else { return }
                 guard query == self.currentQuery else { return }
 
-                self.nextPage = 2
-                self.totalPages = response.totalPages
-                self.movies = response.results
-                self.state = self.movies.isEmpty ? .empty : .results
+                self.isLoading = false
 
-            case .failure(let error):
-                guard query == self.currentQuery else { return }
+                switch result {
+                case .success(let response):
+                    self.nextPage = 2
+                    self.totalPages = response.totalPages
+                    self.movies = response.results
+                    self.state = self.movies.isEmpty ? .empty : .results
 
-                print("search: \(error.errorDescription ?? "Unknown")")
-                self.state = .error(error.userMessage)
+                case .failure(let error):
+                    print("search: \(error.errorDescription ?? "Unknown")")
+                    self.state = .error(error.userMessage)
+                }
             }
         }
     }
@@ -182,9 +182,11 @@ final class SearchViewModel {
 
     private func fetchFavouritesIDs() {
         repository.fetchFavouriteIDs { [weak self] ids in
-            guard let self else { return }
-            self.favouriteIDs = ids
-            self.onFavouritesChanged?()
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.favouriteIDs = ids
+                self.onFavouritesChanged?()
+            }
         }
     }
 
@@ -195,15 +197,19 @@ final class SearchViewModel {
     func toggleFavourite(movie: Movie) {
         if isFavourite(movie.id) {
             repository.removeFavourite(movie: movie) { [weak self] in
-                guard let self else { return }
-                self.favouriteIDs.remove(movie.id)
-                self.onFavouritesChanged?()
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    self.favouriteIDs.remove(movie.id)
+                    self.onFavouritesChanged?()
+                }
             }
         } else {
             repository.saveFavourite(movie: movie) { [weak self] in
-                guard let self else { return }
-                self.favouriteIDs.insert(movie.id)
-                self.onFavouritesChanged?()
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    self.favouriteIDs.insert(movie.id)
+                    self.onFavouritesChanged?()
+                }
             }
         }
     }

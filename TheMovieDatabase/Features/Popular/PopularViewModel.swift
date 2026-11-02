@@ -64,76 +64,111 @@ final class PopularViewModel {
             NotificationCenter.default.removeObserver(observer)
         }
     }
-    
+
     // MARK: - Private
-    
+
     private func fetchFavouritesIDs() {
-         repository.fetchFavouriteIDs { [weak self] ids in
-             guard let self else { return }
-             self.favouriteIDs = ids
-             self.onFavouritesChanged?()
-         }
-     }
-    
+        repository.fetchFavouriteIDs { [weak self] ids in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.favouriteIDs = ids
+                self.onFavouritesChanged?()
+            }
+        }
+    }
+
+    // Применяет ответ к списку
+    // Первая страница заменяет данные, остальные — добавляются
+    private func apply(
+        _ response: PaginatedResponse<Movie>,
+        isFirstPage: Bool
+    ) {
+        totalPages = response.totalPages
+
+        if isFirstPage {
+            movies = response.results
+            nextPage = 2
+        } else {
+            movies.append(contentsOf: response.results)
+            nextPage += 1
+        }
+    }
+
     // MARK: - Public
 
     func fetchMovies() {
         guard canLoadMore else { return }
 
-        // Запоминаем, какую страницу мы запрашиваем ПРЯМО СЕЙЧАС
         let pageToLoad = nextPage
         let isFirstPage = pageToLoad == 1
 
         isLoading = true
 
-        // Показываем спиннер только если это первая страница и данных еще нет
+        // Лоадер заранее не показываем: сначала ждём ответ кэша.
+        // Если кэш пуст — лоадер включится в обработчике .cache.
+        // При пагинации показываем спиннер в футере таблицы.
         if isFirstPage {
-            state = .loading
+            if !movies.isEmpty {
+                state = .loaded
+            }
         } else {
             state = .loadingMore
         }
 
-        // Обновляем ID's избранных
         if isFirstPage {
             fetchFavouritesIDs()
         }
 
-        repository.fetchPopular(page: pageToLoad) { [weak self] result in
-            guard let self else { return }
-            self.isLoading = false
+        repository.fetchPopular(page: pageToLoad) { [weak self] result, source in
+            DispatchQueue.main.async {
+                guard let self else { return }
 
-            switch result {
-            case .success(let response):
-                self.totalPages = response.totalPages
+                switch source {
+                case .cache:
+                    // Кэш применяем только для первой страницы.
+                    // На пагинации кэш и сеть добавили бы страницу дважды.
+                    guard isFirstPage else { return }
+                    guard case .success(let response) = result else { return }
 
-                if isFirstPage {
-                    // Если это первая страница, мы ЗАМЕНЯЕМ старые данные новыми
-                    self.movies = response.results
-                    self.nextPage = 2
-                } else {
-                    // Если это пагинация, мы ДОБАВЛЯЕМ данные
-                    self.movies.append(contentsOf: response.results)
-                    self.nextPage += 1
-                }
+                    // Пустой кэш не должен затирать уже показанные данные.
+                    if response.results.isEmpty && !self.movies.isEmpty {
+                        return
+                    }
 
-                let newState: PopularState =
-                    self.movies.isEmpty ? .empty : .loaded
+                    self.apply(response, isFirstPage: true)
 
-                // ВАЖНО: Так как кэш и сеть присылают ответ дважды,
-                // state может не измениться (был .loaded, стал .loaded).
-                // Чтобы таблица перерисовалась, вызываем принудительно.
-                if newState != self.state {
-                    self.state = newState
-                } else {
-                    self.onStateChanged?(self.state)
-                }
+                    // Есть кэш — показываем его сразу и без лоадера,
+                    // сеть продолжает работать втихую.
+                    // Кэш пуст — только теперь показываем лоадер.
+                    // isLoading не снимаем: сеть ещё в полёте,
+                    // поэтому повторный fetch/refresh не запустится.
+                    self.state = self.movies.isEmpty ? .loading : .loaded
 
-            case .failure(let error):
-                if isFirstPage && self.movies.isEmpty {
-                    self.state = .error(error.userMessage)
-                } else if !isFirstPage {
-                    self.shouldStopPagination = true
-                    self.state = .loadMoreError
+                case .network:
+                    self.isLoading = false
+                    
+                    switch result {
+                    case .success(let response):
+                        self.apply(response, isFirstPage: isFirstPage)
+                        let newState: PopularState = self.movies.isEmpty ? .empty : .loaded
+                        if newState != self.state {
+                            self.state = newState
+                        } else {
+                            self.onStateChanged?(self.state)
+                        }
+                    case .failure(let error):
+                        if isFirstPage && self.movies.isEmpty {
+                            self.state = .error(error.userMessage)
+                        } else if !isFirstPage {
+                            self.shouldStopPagination = true
+                            self.state = .loadMoreError
+                        } else {
+                            // Первая страница, но данные уже есть (кэш).
+                            // Остаёмся в .loaded и уведомляем UI,
+                            // чтобы завершить возможный refresh.
+                            self.onStateChanged?(self.state)
+                        }
+                    }
                 }
             }
         }
@@ -141,34 +176,58 @@ final class PopularViewModel {
 
     func refreshMovies() {
         guard !isLoading, !isRefreshing else {
-            state = movies.isEmpty ? .empty : .loaded
+            // Уже идёт загрузка — второй запрос не нужен.
+            // Состояние не трогаем, чтобы не спрятать лоадер
+            // и не показать пустой экран раньше времени.
             return
         }
+
         isRefreshing = true
+
+        // .refreshing не показывает центральный лоадер.
+        // Если кэш есть — покажем его сразу, а если пуст —
+        // лоадер включится после ответа кэша.
         state = .refreshing
-        
+
         // Обновляем ID's избранных
         fetchFavouritesIDs()
 
-        repository.fetchPopular(page: 1) { [weak self] result in
-            guard let self else { return }
-            self.isRefreshing = false
+        repository.fetchPopular(page: 1) { [weak self] result, source in
+            DispatchQueue.main.async {
+                guard let self else { return }
 
-            switch result {
-            case .success(let response):
-                self.nextPage = 2
-                self.totalPages = response.totalPages
-                self.movies = response.results
-                self.shouldStopPagination = false
-                self.state = self.movies.isEmpty ? .empty : .loaded
+                switch source {
+                case .cache:
+                    guard case .success(let response) = result else { return }
 
-            case .failure(let error):
-                print("refreshMovies: \(error.errorDescription ?? "Unknown")")
-                // Если данные уже есть — не показываем ошибку, остаёмся в .loaded
-                if self.movies.isEmpty {
-                    self.state = .error(error.userMessage)
-                } else {
-                    self.state = .loaded
+                    // Если данные уже есть, кэш не подставляем,
+                    // чтобы таблица не мигала.
+                    guard self.movies.isEmpty else { return }
+
+                    if response.results.isEmpty {
+                        // Кэша нет — показываем лоадер до ответа сети.
+                        self.state = .loading
+                    } else {
+                        // Кэш есть — показываем сразу, сеть работает втихую.
+                        self.apply(response, isFirstPage: true)
+                        self.state = .loaded
+                    }
+
+                case .network:
+                    self.isRefreshing = false
+
+                    switch result {
+                    case .success(let response):
+                        self.apply(response, isFirstPage: true)
+                        self.shouldStopPagination = false
+                        self.state = self.movies.isEmpty ? .empty : .loaded
+                    case .failure(let error):
+                        if self.movies.isEmpty {
+                            self.state = .error(error.userMessage)
+                        } else {
+                            self.state = .loaded
+                        }
+                    }
                 }
             }
         }
@@ -179,7 +238,6 @@ final class PopularViewModel {
         fetchMovies()
     }
 
-
     func isFavourite(_ id: Int) -> Bool {
         return favouriteIDs.contains(id)
     }
@@ -187,15 +245,19 @@ final class PopularViewModel {
     func toggleFavourite(movie: Movie) {
         if isFavourite(movie.id) {
             repository.removeFavourite(movie: movie) { [weak self] in
-                guard let self else { return }
-                self.favouriteIDs.remove(movie.id)
-                self.onFavouritesChanged?()
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    self.favouriteIDs.remove(movie.id)
+                    self.onFavouritesChanged?()
+                }
             }
         } else {
             repository.saveFavourite(movie: movie) { [weak self] in
-                guard let self else { return }
-                self.favouriteIDs.insert(movie.id)
-                self.onFavouritesChanged?()
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    self.favouriteIDs.insert(movie.id)
+                    self.onFavouritesChanged?()
+                }
             }
         }
     }

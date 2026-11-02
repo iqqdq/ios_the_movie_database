@@ -7,24 +7,20 @@
 
 import UIKit
 
-// MARK: - Coordinator
-
 protocol Coordinator: AnyObject {
     var childCoordinators: [Coordinator] { get set }
 
     func start()
 }
 
-// MARK: - AppCoordinator
-
 final class AppCoordinator: Coordinator {
 
     // MARK: - Coordinator
 
     var childCoordinators: [Coordinator] = []
-    
+
     // MARK: - Observers
-    
+
     private var themeObserver: NSObjectProtocol?
 
     // MARK: - Dependencies
@@ -55,16 +51,16 @@ final class AppCoordinator: Coordinator {
 
     func start() {
         applyTheme()
-           
-           // Подписываемся на изменения UserDefaults (когда свитч меняет тему)
-           themeObserver = NotificationCenter.default.addObserver(
-               forName: UserDefaults.didChangeNotification,
-               object: nil,
-               queue: .main
-           ) { [weak self] _ in
-               self?.applyTheme()
-           }
-        
+
+        // Подписываемся на изменения UserDefaults (когда свитч меняет тему)
+        themeObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.applyTheme()
+        }
+
         setupTabBarController()
         setupPopularTab()
         setupSearchTab()
@@ -81,13 +77,14 @@ final class AppCoordinator: Coordinator {
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()
     }
-    
+
     // MARK: - App Theme
-    
+
     private func applyTheme() {
-        let savedTheme = UserDefaults.standard.string(forKey: "app_theme") ?? "system"
+        let savedTheme =
+            UserDefaults.standard.string(forKey: "app_theme") ?? "system"
         let theme = AppTheme(rawValue: savedTheme) ?? .system
-        
+
         switch theme {
         case .light:
             window.overrideUserInterfaceStyle = .light
@@ -166,7 +163,7 @@ final class AppCoordinator: Coordinator {
             guard let self else { return }
             showDetail(favoritesNavigation, movie)
         }
-        
+
         favoritesNavigation.setNavigationBarHidden(true, animated: false)
         favoritesNavigation.setViewControllers(
             [viewController],

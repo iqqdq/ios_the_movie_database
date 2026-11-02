@@ -28,22 +28,18 @@ final class SettingsRepository: SettingsRepositoryProtocol {
 
     func clearCache(completion: @escaping () -> Void) {
         movieCacheStorage.clear {
-            DispatchQueue.main.async {
-                completion()
-            }
+            completion()
         }
     }
 
     func clearFavourites(completion: @escaping () -> Void) {
         favouriteMovieCacheStorage.clear {
-            DispatchQueue.main.async {
-                // Сообщаем всем экранам, что избранное опустело
-                NotificationCenter.default.post(
-                    name: .favouritesDidChange,
-                    object: nil
-                )
-                completion()
-            }
+            // Сообщаем всем экранам, что избранное опустело
+            NotificationCenter.default.post(
+                name: .favouritesDidChange,
+                object: nil
+            )
+            completion()
         }
     }
 }

@@ -56,16 +56,18 @@ final class FavouritesViewModel {
         }
 
         repository.fetchFavourites { [weak self] result in
-            guard let self else { return }
-
-            switch result {
-            case .success(let movies):
-                self.movies = movies
-                self.state = movies.isEmpty ? .empty : .loaded
-
-            case .failure(_):
-                self.movies = []
-                self.state = .empty
+            DispatchQueue.main.async {
+                guard let self else { return }
+                
+                switch result {
+                case .success(let movies):
+                    self.movies = movies
+                    self.state = movies.isEmpty ? .empty : .loaded
+                    
+                case .failure(_):
+                    self.movies = []
+                    self.state = .empty
+                }
             }
         }
     }

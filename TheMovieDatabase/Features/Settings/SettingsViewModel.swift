@@ -65,13 +65,17 @@ final class SettingsViewModel {
 
     func clearCache() {
         repository.clearCache { [weak self] in
-            self?.onCacheCleared?()
+            DispatchQueue.main.async {
+                self?.onCacheCleared?()
+            }
         }
     }
 
     func clearFavourites() {
         repository.clearFavourites { [weak self] in
-            self?.onFavouritesCleared?()
+            DispatchQueue.main.async {
+                self?.onFavouritesCleared?()
+            }
         }
     }
 

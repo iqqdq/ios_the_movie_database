@@ -53,14 +53,14 @@ final class TableFooterView: UIView {
 
     // MARK: - Public
 
-    /// Показывает спиннер загрузки.
+    // Показывает спиннер загрузки.
     func showLoading() {
         spinner.startAnimating()
         retryButton.isHidden = true
         onRetryTap = nil
     }
 
-    /// Показывает кнопку повтора с заданным заголовком.
+    // Показывает кнопку повтора с заданным заголовком.
     func showRetry(
         title: String,
         action: @escaping () -> Void

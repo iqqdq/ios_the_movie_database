@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		DBAD65C830757EF7009F36B6 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = DBAD65C730757EF7009F36B6 /* Kingfisher */; };
+		DBBD8894309B52F9007069DB /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = DBBD8893309B52F3007069DB /* README.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -24,6 +25,7 @@
 		DBAD657E306E98FB009F36B6 /* TheMovieDatabase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TheMovieDatabase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBBD88713098A67A007069DB /* TheMovieDatabaseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TheMovieDatabaseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBBD8892309A1C08007069DB /* ios.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = ios.yml; sourceTree = "<group>"; };
+		DBBD8893309B52F3007069DB /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -70,6 +72,7 @@
 		DBAD6575306E98FB009F36B6 = {
 			isa = PBXGroup;
 			children = (
+				DBBD8893309B52F3007069DB /* README.md */,
 				DBBD8890309A1BF0007069DB /* .github */,
 				DBAD6580306E98FB009F36B6 /* TheMovieDatabase */,
 				DBBD88723098A67A007069DB /* TheMovieDatabaseTests */,
@@ -194,6 +197,7 @@
 		DBAD657C306E98FB009F36B6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
+				DBBD8894309B52F9007069DB /* README.md in Resources */,
 			);
 		};
 		DBBD886F3098A67A007069DB /* Resources */ = {

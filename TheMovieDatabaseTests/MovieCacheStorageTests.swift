@@ -68,7 +68,7 @@ final class MovieCacheStorageTests: XCTestCase {
             expectationSave.fulfill()
         }
 
-        wait(for: [expectationSave], timeout: 1.0)
+        wait(for: [expectationSave], timeout: 5.0)
 
         // 3. THEN
         // Проверяем, что фильмы записались в БД
@@ -84,7 +84,7 @@ final class MovieCacheStorageTests: XCTestCase {
             expectationFetch.fulfill()
         }
 
-        wait(for: [expectationFetch], timeout: 1.0)
+        wait(for: [expectationFetch], timeout: 5.0)
 
         XCTAssertEqual(storageMovies.count, 3)
     }

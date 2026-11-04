@@ -1,0 +1,62 @@
+name: iOS CI
+
+# 1. Триггеры: когда робот должен просыпаться и начинать работу.
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    # 2. Операционная система: GitHub разворачивает виртуальный Mac.
+    # Проект использует формат Xcode 27 (objectVersion = 110),
+    # поэтому нужен образ с Xcode 27. На macos-15 стоит Xcode 16,
+    # и он не умеет открывать такой project.pbxproj.
+    runs-on: xcode-27
+
+    steps:
+    # 3. Скачиваем код из нашего репозитория на этот виртуальный Mac.
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 4. Показываем версию Xcode для логов
+    - name: Show Xcode version
+      run: xcodebuild -version
+
+    # 5. Создаем фиктивный файл Secrets.swift.
+    # Вот здесь мы подставляем секрет из GitHub
+    - name: Create Secrets.swift
+      run: |
+        mkdir -p TheMovieDatabase/Core/Config
+        echo "import Foundation" > TheMovieDatabase/Core/Config/Secrets.swift
+        echo "enum Secrets {" >> TheMovieDatabase/Core/Config/Secrets.swift
+        
+        echo "    static let apiKey = \"${{ secrets.TMDB_API_KEY }}\"" >> TheMovieDatabase/Core/Config/Secrets.swift
+        echo "}" >> TheMovieDatabase/Core/Config/Secrets.swift
+
+    # 6. Сборка и запуск тестов.
+    # Команда xcodebuild собирает проект и прогоняет все тесты,
+    # которые мы написали в таргете TheMovieDatabaseTests.
+    # -project: имя вашего файла проекта (TheMovieDatabase.xcodeproj).
+    # -scheme: имя схемы в Xcode (обычно совпадает с именем проекта).
+    # -destination: на каком симуляторе запускать.
+    # На образе xcode-27 доступен iPhone 17 (iOS 27).
+    # -quiet: скрывает лишний "мусор" в логах, оставляя только ошибки и результаты.
+    # ШАГ 1: Только собираем (без запуска симулятора)
+    - name: Build for testing
+      run: |
+        xcodebuild build-for-testing \
+          -project TheMovieDatabase.xcodeproj \
+          -scheme TheMovieDatabase \
+          -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+          -quiet
+
+    # ШАГ 2: Запускаем тесты (симулятор уже готов)
+    - name: Run tests
+      run: |
+        xcodebuild test-without-building \
+          -project TheMovieDatabase.xcodeproj \
+          -scheme TheMovieDatabase \
+          -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+          -quiet

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 @testable import TheMovieDatabase
 
 final class MockMovieRepository: MovieRepositoryProtocol {
@@ -26,7 +27,7 @@ final class MockMovieRepository: MovieRepositoryProtocol {
 
     // Избранное
     var stubbedFavouriteIDs: Set<Int> = []
-    
+
     // Поиск
     var searchMovieCallCount = 0
 
@@ -65,17 +66,21 @@ final class MockMovieRepository: MovieRepositoryProtocol {
             totalPages: 1,
             totalResults: 0
         )
-        
+
         completion(.success(emptyResponse))
     }
-    
-    // Заглушки
 
+    func saveFavourite(movie: Movie, completion: @escaping () -> Void) {
+        completion()
+    }
+
+    func removeFavourite(movie: Movie, completion: @escaping () -> Void) {
+        completion()
+    }
+    
+    // Заглушка
+    
     func fetchFavourites(
         completion: @escaping (Result<[Movie], APIError>) -> Void
     ) {}
-
-    func saveFavourite(movie: Movie, completion: @escaping () -> Void) {}
-
-    func removeFavourite(movie: Movie, completion: @escaping () -> Void) {ˆ}
 }

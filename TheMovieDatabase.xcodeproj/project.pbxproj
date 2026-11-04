@@ -23,6 +23,7 @@
 /* Begin PBXFileReference section */
 		DBAD657E306E98FB009F36B6 /* TheMovieDatabase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TheMovieDatabase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DBBD88713098A67A007069DB /* TheMovieDatabaseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TheMovieDatabaseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DBBD8892309A1C08007069DB /* ios.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = ios.yml; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -35,16 +36,6 @@
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		DBBD887D3098A6AD007069DB /* Exceptions for "TheMovieDatabaseTests" folder in "Copy Bundle Resources" phase from "TheMovieDatabaseTests" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = DBBD886F3098A67A007069DB /* Resources */;
-			membershipExceptions = (
-				MockMovieRepository.swift,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DBAD6580306E98FB009F36B6 /* TheMovieDatabase */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -56,9 +47,6 @@
 		};
 		DBBD88723098A67A007069DB /* TheMovieDatabaseTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				DBBD887D3098A6AD007069DB /* Exceptions for "TheMovieDatabaseTests" folder in "Copy Bundle Resources" phase from "TheMovieDatabaseTests" target */,
-			);
 			path = TheMovieDatabaseTests;
 			sourceTree = "<group>";
 		};
@@ -82,6 +70,7 @@
 		DBAD6575306E98FB009F36B6 = {
 			isa = PBXGroup;
 			children = (
+				DBBD8890309A1BF0007069DB /* .github */,
 				DBAD6580306E98FB009F36B6 /* TheMovieDatabase */,
 				DBBD88723098A67A007069DB /* TheMovieDatabaseTests */,
 				DBAD657F306E98FB009F36B6 /* Products */,
@@ -95,6 +84,22 @@
 				DBBD88713098A67A007069DB /* TheMovieDatabaseTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		DBBD8890309A1BF0007069DB /* .github */ = {
+			isa = PBXGroup;
+			children = (
+				DBBD8891309A1BFC007069DB /* workflows */,
+			);
+			path = .github;
+			sourceTree = "<group>";
+		};
+		DBBD8891309A1BFC007069DB /* workflows */ = {
+			isa = PBXGroup;
+			children = (
+				DBBD8892309A1C08007069DB /* ios.yml */,
+			);
+			path = workflows;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

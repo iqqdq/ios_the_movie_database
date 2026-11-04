@@ -6,6 +6,7 @@
 //
 
 import XCTest
+
 @testable import TheMovieDatabase
 
 @MainActor
@@ -67,7 +68,7 @@ final class PopularViewModelTests: XCTestCase {
             description:
                 "Ждем пока viewModel.fetchMovies вернет результат в main queue"
         )
-        
+
         DispatchQueue.main.async {
             expectation.fulfill()
         }
@@ -105,7 +106,7 @@ final class PopularViewModelTests: XCTestCase {
             description:
                 "Ждем пока viewModel.fetchMovies вернет результат в main queue"
         )
-        
+
         DispatchQueue.main.async {
             expectation.fulfill()
         }
@@ -147,8 +148,8 @@ final class PopularViewModelTests: XCTestCase {
             description:
                 "Ждем пока viewModel.toggleFavourite вернет результат в main queue"
         )
-        
-        DispatchQueue.main.async {
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             expectation.fulfill()
         }
 
